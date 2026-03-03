@@ -103,7 +103,7 @@ export default function QuotesPage() {
           <tbody className="divide-y">
             {quotes.map(q => (
               <tr key={q.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium">${q.amount.toFixed(2)}</td>
+                <td className="px-4 py-3 font-medium"><Link to={`/quotes/${q.id}`} className="text-blue-600 hover:underline">${q.amount.toFixed(2)}</Link></td>
                 <td className="px-4 py-3">{q.vendor ? <Link to={`/vendors/${q.vendor.id}`} className="text-blue-600 hover:underline">{q.vendor.name}</Link> : '—'}</td>
                 <td className="px-4 py-3">{q.project ? <Link to={`/projects/${q.project.id}`} className="text-blue-600 hover:underline">{q.project.name}</Link> : '—'}</td>
                 <td className="px-4 py-3">{new Date(q.date_received).toLocaleDateString()}</td>
