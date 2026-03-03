@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import date, datetime
 from typing import Optional
-from models import ProjectStatus, ContractType, Frequency
+from models import ProjectStatus, ContractType
 
 
 # --- Vendor ---
@@ -95,7 +95,7 @@ class ContractDetail(ContractOut):
 # --- Maintenance ---
 class MaintenanceBase(BaseModel):
     name: str
-    frequency: Frequency
+    frequency: str
     last_completed: Optional[date] = None
     next_due: Optional[date] = None
 

@@ -3,12 +3,27 @@ import { api } from '../api/client';
 import type { MaintenanceTask } from '../api/client';
 import Modal from '../components/Modal';
 
+function formatFrequency(freq: string): string | null {
+  const match = freq.trim().match(/^(\d+)\s*(d|w|m|y)$/i);
+  if (!match) return null;
+  const n = parseInt(match[1]);
+  const unit = match[2].toLowerCase();
+  const labels: Record<string, [string, string]> = {
+    d: ['day', 'days'],
+    w: ['week', 'weeks'],
+    m: ['month', 'months'],
+    y: ['year', 'years'],
+  };
+  const [singular, plural] = labels[unit];
+  return `${n} ${n === 1 ? singular : plural}`;
+}
+
 export default function MaintenancePage() {
   const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState({
-    name: '', frequency: 'monthly' as MaintenanceTask['frequency'],
+    name: '', frequency: '',
     last_completed: '', next_due: '',
   });
 
@@ -16,7 +31,7 @@ export default function MaintenancePage() {
   useEffect(() => { load(); }, []);
 
   const resetForm = () => {
-    setForm({ name: '', frequency: 'monthly', last_completed: '', next_due: '' });
+    setForm({ name: '', frequency: '', last_completed: '', next_due: '' });
     setShowForm(false);
     setEditId(null);
   };
@@ -25,7 +40,7 @@ export default function MaintenancePage() {
     e.preventDefault();
     const data = {
       name: form.name,
-      frequency: form.frequency,
+      frequency: form.frequency.trim().toLowerCase(),
       last_completed: form.last_completed || null,
       next_due: form.next_due || null,
     };
@@ -67,6 +82,8 @@ export default function MaintenancePage() {
     return '';
   };
 
+  const freqPreview = formatFrequency(form.frequency);
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -80,19 +97,25 @@ export default function MaintenancePage() {
       <Modal open={showForm} onClose={resetForm} title={editId ? 'Edit Task' : 'Add Task'}>
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
           <input required placeholder="Task Name" value={form.name} onChange={e => setForm({...form, name: e.target.value})}
-            className="border rounded px-3 py-2 text-sm" />
-          <select value={form.frequency} onChange={e => setForm({...form, frequency: e.target.value as MaintenanceTask['frequency']})}
-            className="border rounded px-3 py-2 text-sm">
-            <option value="monthly">Monthly</option>
-            <option value="quarterly">Quarterly</option>
-            <option value="semi_annual">Semi-Annual</option>
-            <option value="annual">Annual</option>
-          </select>
+            className="border rounded px-3 py-2 text-sm col-span-2" />
+          <div className="col-span-2">
+            <div className="flex items-center gap-3">
+              <input required placeholder="e.g. 2w, 3m, 1y" value={form.frequency}
+                onChange={e => setForm({...form, frequency: e.target.value})}
+                className="border rounded px-3 py-2 text-sm flex-1" />
+              {form.frequency && (
+                <span className={`text-sm ${freqPreview ? 'text-green-600' : 'text-red-500'}`}>
+                  {freqPreview ? `Every ${freqPreview}` : 'Invalid format'}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-gray-400 mt-1">d = days, w = weeks, m = months, y = years</p>
+          </div>
           <input type="date" placeholder="Last Completed" value={form.last_completed} onChange={e => setForm({...form, last_completed: e.target.value})}
             className="border rounded px-3 py-2 text-sm" />
           <input type="date" placeholder="Next Due" value={form.next_due} onChange={e => setForm({...form, next_due: e.target.value})}
             className="border rounded px-3 py-2 text-sm" />
-          <button type="submit" className="col-span-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm">
+          <button type="submit" disabled={!freqPreview} className="col-span-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
             {editId ? 'Update' : 'Create'}
           </button>
         </form>
@@ -104,7 +127,7 @@ export default function MaintenancePage() {
             <div>
               <div className="font-medium">{t.name}</div>
               <div className="text-xs text-gray-500 mt-1">
-                {t.frequency.replace('_', '-')} &middot;
+                Every {formatFrequency(t.frequency) || t.frequency} &middot;
                 Due: {t.next_due ? new Date(t.next_due).toLocaleDateString() : 'Not set'} &middot;
                 Last: {t.last_completed ? new Date(t.last_completed).toLocaleDateString() : 'Never'}
               </div>

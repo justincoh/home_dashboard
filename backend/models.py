@@ -16,11 +16,6 @@ class ContractType(str, enum.Enum):
     warranty = "warranty"
 
 
-class Frequency(str, enum.Enum):
-    monthly = "monthly"
-    quarterly = "quarterly"
-    semi_annual = "semi_annual"
-    annual = "annual"
 
 
 class Vendor(Base):
@@ -80,7 +75,7 @@ class MaintenanceTask(Base):
     __tablename__ = "maintenance_tasks"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    frequency = Column(Enum(Frequency), nullable=False)
+    frequency = Column(String, nullable=False)
     last_completed = Column(Date, nullable=True)
     next_due = Column(Date, nullable=True)
 

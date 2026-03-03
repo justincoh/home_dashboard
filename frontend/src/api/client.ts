@@ -59,7 +59,7 @@ export interface Contract {
 export interface MaintenanceTask {
   id: number;
   name: string;
-  frequency: 'monthly' | 'quarterly' | 'semi_annual' | 'annual';
+  frequency: string;
   last_completed: string | null;
   next_due: string | null;
 }
