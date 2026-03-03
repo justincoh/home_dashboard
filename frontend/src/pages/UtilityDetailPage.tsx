@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../api/client';
-import type { Utility, UtilityBill } from '../api/client';
+import type { Utility, UtilityBill, FileAttachment } from '../api/client';
 import Modal from '../components/Modal';
 
 export default function UtilityDetailPage() {
@@ -10,6 +10,8 @@ export default function UtilityDetailPage() {
   const [bills, setBills] = useState<UtilityBill[]>([]);
   const [showBillForm, setShowBillForm] = useState(false);
   const [billForm, setBillForm] = useState({ bill_date: '', amount: '', usage_value: '', usage_unit: '' });
+  const [billFiles, setBillFiles] = useState<Record<number, FileAttachment>>({});
+  const fileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
   useEffect(() => {
     if (!id) return;
@@ -19,6 +21,38 @@ export default function UtilityDetailPage() {
   }, [id]);
 
   const loadBills = () => api.listBills(Number(id)).then(setBills);
+
+  const loadBillFiles = (billIds: number[]) => {
+    billIds.forEach(billId => {
+      api.listFiles('utility_bill', billId).then(files => {
+        if (files.length > 0) {
+          setBillFiles(prev => ({ ...prev, [billId]: files[0] }));
+        }
+      });
+    });
+  };
+
+  useEffect(() => {
+    if (bills.length > 0) {
+      loadBillFiles(bills.map(b => b.id));
+    }
+  }, [bills]);
+
+  const handleFileUpload = async (billId: number, file: File) => {
+    const attachment = await api.uploadFile('utility_bill', billId, file);
+    setBillFiles(prev => ({ ...prev, [billId]: attachment }));
+    if (fileInputRefs.current[billId]) fileInputRefs.current[billId]!.value = '';
+  };
+
+  const handleFileDelete = async (billId: number, fileId: number) => {
+    if (!confirm('Delete this file?')) return;
+    await api.deleteFile(fileId);
+    setBillFiles(prev => {
+      const next = { ...prev };
+      delete next[billId];
+      return next;
+    });
+  };
 
   const handleBillSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,6 +142,7 @@ export default function UtilityDetailPage() {
               <th className="text-left px-4 py-3 font-medium">Date</th>
               <th className="text-left px-4 py-3 font-medium">Amount</th>
               <th className="text-left px-4 py-3 font-medium">Usage</th>
+              <th className="text-left px-4 py-3 font-medium">PDF</th>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
@@ -117,6 +152,24 @@ export default function UtilityDetailPage() {
                 <td className="px-4 py-3">{new Date(b.bill_date).toLocaleDateString()}</td>
                 <td className="px-4 py-3 font-medium">${b.amount.toFixed(2)}</td>
                 <td className="px-4 py-3">{b.usage_value != null ? `${b.usage_value} ${b.usage_unit || ''}` : '—'}</td>
+                <td className="px-4 py-3">
+                  {billFiles[b.id] ? (
+                    <span className="flex items-center gap-2">
+                      <a href={api.getFileUrl(billFiles[b.id].id)} target="_blank" rel="noreferrer"
+                        className="text-blue-600 hover:underline text-xs">{billFiles[b.id].filename}</a>
+                      <button onClick={() => handleFileDelete(b.id, billFiles[b.id].id)}
+                        className="text-red-500 hover:text-red-700 text-xs">x</button>
+                    </span>
+                  ) : (
+                    <>
+                      <input type="file" accept=".pdf" ref={el => { fileInputRefs.current[b.id] = el; }}
+                        onChange={e => { if (e.target.files?.[0]) handleFileUpload(b.id, e.target.files[0]); }}
+                        className="hidden" />
+                      <button onClick={() => fileInputRefs.current[b.id]?.click()}
+                        className="text-blue-600 hover:underline text-xs">Upload</button>
+                    </>
+                  )}
+                </td>
                 <td className="px-4 py-3 text-right">
                   <button onClick={() => handleDeleteBill(b.id)} className="text-red-600 hover:underline text-xs">Delete</button>
                 </td>
