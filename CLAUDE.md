@@ -46,6 +46,18 @@ Manual startup:
 - All schema changes must use migrations (ALTER TABLE or similar) to preserve existing data.
 - Only drop records if the user explicitly asks for it.
 
+### Monthly Backup
+
+At the start of each session, check if the last backup is more than 1 month old. If so, automatically create a backup:
+
+```bash
+cp house_dashboard.db house_dashboard_YYYYMMDD.db
+```
+
+Then update the "Last backup" date below. Do not delete old backups.
+
+**Last backup: 2026-03-04**
+
 ## Python
 
 - Always use `python3`, never `python`.
