@@ -35,9 +35,16 @@ Manual startup:
 - **Forms**: All create/edit forms use a `Modal` component (`components/Modal.tsx`), not inline forms
 - **File attachments**: Polymorphic via `entity_type` + `entity_id` on `FileAttachment` model. Files stored in `uploads/` with UUID names
 - **Styling**: Tailwind utility classes only, no custom CSS files
-- **Enums**: `ProjectStatus` (planned/in_progress/done), `ContractType` (contract/warranty), `Frequency` (monthly/quarterly/semi_annual/annual)
+- **Enums**: `ProjectStatus` (planned/in_progress/done), `ContractType` (contract/warranty)
+- **Maintenance frequency**: Free-text interval format (e.g. `3d`, `2w`, `6m`, `1y`) — not an enum. Parsed by regex in `backend/routers/maintenance.py`
 - **Backend routers**: All follow the same pattern — list, get, create, update, delete. Status 201 for creates, 204 for deletes
 - **Cascade deletes**: `Utility` → `UtilityBill` via SQLAlchemy relationship cascade
+
+## Database
+
+- **Schema is locked.** Never drop or recreate the database.
+- All schema changes must use migrations (ALTER TABLE or similar) to preserve existing data.
+- Only drop records if the user explicitly asks for it.
 
 ## Node Version
 
