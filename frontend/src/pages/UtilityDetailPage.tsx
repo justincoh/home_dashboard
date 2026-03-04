@@ -9,6 +9,7 @@ export default function UtilityDetailPage() {
   const [utility, setUtility] = useState<Utility | null>(null);
   const [bills, setBills] = useState<UtilityBill[]>([]);
   const [showBillForm, setShowBillForm] = useState(false);
+  const [editBillId, setEditBillId] = useState<number | null>(null);
   const [billForm, setBillForm] = useState({ bill_date: '', amount: '', usage_value: '', usage_unit: '' });
   const [billFiles, setBillFiles] = useState<Record<number, FileAttachment>>({});
   const fileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
@@ -54,17 +55,38 @@ export default function UtilityDetailPage() {
     });
   };
 
+  const resetBillForm = () => {
+    setBillForm({ bill_date: '', amount: '', usage_value: '', usage_unit: '' });
+    setShowBillForm(false);
+    setEditBillId(null);
+  };
+
+  const startEditBill = (b: UtilityBill) => {
+    setBillForm({
+      bill_date: b.bill_date,
+      amount: String(b.amount),
+      usage_value: b.usage_value != null ? String(b.usage_value) : '',
+      usage_unit: b.usage_unit || '',
+    });
+    setEditBillId(b.id);
+    setShowBillForm(true);
+  };
+
   const handleBillSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await api.createBill(Number(id), {
+    const data = {
       utility_id: Number(id),
       bill_date: billForm.bill_date,
       amount: Number(billForm.amount),
       usage_value: billForm.usage_value ? Number(billForm.usage_value) : null,
       usage_unit: billForm.usage_unit || null,
-    });
-    setBillForm({ bill_date: '', amount: '', usage_value: '', usage_unit: '' });
-    setShowBillForm(false);
+    };
+    if (editBillId) {
+      await api.updateBill(editBillId, data);
+    } else {
+      await api.createBill(Number(id), data);
+    }
+    resetBillForm();
     loadBills();
   };
 
@@ -115,13 +137,13 @@ export default function UtilityDetailPage() {
       {/* Bills */}
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-lg font-semibold">Bills</h2>
-        <button onClick={() => setShowBillForm(true)}
+        <button onClick={() => { resetBillForm(); setShowBillForm(true); }}
           className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
           Add Bill
         </button>
       </div>
 
-      <Modal open={showBillForm} onClose={() => setShowBillForm(false)} title="Add Bill">
+      <Modal open={showBillForm} onClose={resetBillForm} title={editBillId ? 'Edit Bill' : 'Add Bill'}>
         <form onSubmit={handleBillSubmit} className="grid grid-cols-2 gap-3">
           <input required type="date" value={billForm.bill_date} onChange={e => setBillForm({...billForm, bill_date: e.target.value})}
             className="border rounded px-3 py-2 text-sm" />
@@ -131,7 +153,9 @@ export default function UtilityDetailPage() {
             onChange={e => setBillForm({...billForm, usage_value: e.target.value})} className="border rounded px-3 py-2 text-sm" />
           <input placeholder="Usage Unit (kWh, gallons...)" value={billForm.usage_unit}
             onChange={e => setBillForm({...billForm, usage_unit: e.target.value})} className="border rounded px-3 py-2 text-sm" />
-          <button type="submit" className="col-span-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm">Add Bill</button>
+          <button type="submit" className="col-span-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm">
+            {editBillId ? 'Update' : 'Add Bill'}
+          </button>
         </form>
       </Modal>
 
@@ -142,6 +166,7 @@ export default function UtilityDetailPage() {
               <th className="text-left px-4 py-3 font-medium">Date</th>
               <th className="text-left px-4 py-3 font-medium">Amount</th>
               <th className="text-left px-4 py-3 font-medium">Usage</th>
+              <th className="text-left px-4 py-3 font-medium">Cost per Unit</th>
               <th className="text-left px-4 py-3 font-medium">PDF</th>
               <th className="px-4 py-3"></th>
             </tr>
@@ -152,6 +177,7 @@ export default function UtilityDetailPage() {
                 <td className="px-4 py-3">{new Date(b.bill_date).toLocaleDateString()}</td>
                 <td className="px-4 py-3 font-medium">${b.amount.toFixed(2)}</td>
                 <td className="px-4 py-3">{b.usage_value != null ? `${b.usage_value} ${b.usage_unit || ''}` : '—'}</td>
+                <td className="px-4 py-3">{b.usage_value ? `$${(b.amount / b.usage_value).toFixed(2)}` : '—'}</td>
                 <td className="px-4 py-3">
                   {billFiles[b.id] ? (
                     <span className="flex items-center gap-2">
@@ -170,7 +196,8 @@ export default function UtilityDetailPage() {
                     </>
                   )}
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-3 text-right space-x-2">
+                  <button onClick={() => startEditBill(b)} className="text-blue-600 hover:underline text-xs">Edit</button>
                   <button onClick={() => handleDeleteBill(b.id)} className="text-red-600 hover:underline text-xs">Delete</button>
                 </td>
               </tr>
