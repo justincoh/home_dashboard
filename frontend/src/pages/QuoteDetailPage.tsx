@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { api } from '../api/client';
+import { api, fmt$ } from '../api/client';
 import type { Quote } from '../api/client';
 import FileAttachments from '../components/FileAttachments';
 
@@ -18,10 +18,10 @@ export default function QuoteDetailPage() {
   return (
     <div>
       <Link to="/quotes" className="text-blue-600 hover:underline text-sm">&larr; Back to Quotes</Link>
-      <h1 className="text-2xl font-bold mt-2 mb-4">Quote — ${quote.amount.toFixed(2)}</h1>
+      <h1 className="text-2xl font-bold mt-2 mb-4">Quote — {fmt$(quote.amount)}</h1>
       <div className="bg-white rounded-lg shadow p-5 mb-6">
         <div className="grid grid-cols-2 gap-4 text-sm">
-          <div><span className="font-medium">Amount:</span> ${quote.amount.toFixed(2)}</div>
+          <div><span className="font-medium">Amount:</span> {fmt$(quote.amount)}</div>
           <div><span className="font-medium">Date Received:</span> {new Date(quote.date_received).toLocaleDateString()}</div>
           <div><span className="font-medium">Vendor:</span>{' '}
             {quote.vendor ? <Link to={`/vendors/${quote.vendor.id}`} className="text-blue-600 hover:underline">{quote.vendor.name}</Link> : '—'}

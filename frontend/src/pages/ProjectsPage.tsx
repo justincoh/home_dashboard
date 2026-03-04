@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { api } from '../api/client';
+import { api, fmt$ } from '../api/client';
 import type { Project } from '../api/client';
 import Modal from '../components/Modal';
 
@@ -101,13 +101,17 @@ export default function ProjectsPage() {
         </form>
       </Modal>
 
-      <div className="flex gap-2 mb-4">
+      {/* <div className="flex gap-2 mb-4">
         {['', 'planned', 'in_progress', 'done'].map(s => (
           <button key={s} onClick={() => setFilter(s)}
             className={`px-3 py-1 rounded text-sm ${filter === s ? 'bg-blue-600 text-white' : 'bg-white border hover:bg-gray-50'}`}>
             {s ? s.replace('_', ' ') : 'All'}
           </button>
         ))}
+      </div> */}
+
+      <div className="mb-4 text-sm text-gray-700">
+        Total Spent: <span className="font-semibold">{fmt$(projects.reduce((sum, p) => sum + (p.actual_cost || 0), 0))}</span>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -129,8 +133,8 @@ export default function ProjectsPage() {
                 <td className="px-4 py-3">
                   <span className={`px-2 py-0.5 rounded text-xs font-medium ${statusColors[p.status]}`}>{p.status.replace('_', ' ')}</span>
                 </td>
-                <td className="px-4 py-3">{p.budget ? `$${p.budget.toFixed(2)}` : '—'}</td>
-                <td className="px-4 py-3">{p.actual_cost ? `$${p.actual_cost.toFixed(2)}` : '—'}</td>
+                <td className="px-4 py-3">{p.budget ? fmt$(p.budget) : '—'}</td>
+                <td className="px-4 py-3">{p.actual_cost ? fmt$(p.actual_cost) : '—'}</td>
                 <td className="px-4 py-3 text-xs">
                   {p.start_date && new Date(p.start_date).toLocaleDateString()}
                   {p.start_date && p.end_date && ' — '}

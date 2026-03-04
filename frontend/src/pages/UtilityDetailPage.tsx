@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { api } from '../api/client';
+import { api, fmt$ } from '../api/client';
 import type { Utility, UtilityBill, FileAttachment } from '../api/client';
 import Modal from '../components/Modal';
 
@@ -123,9 +123,9 @@ export default function UtilityDetailPage() {
           <div className="flex items-end gap-1" style={{ height: '160px' }}>
             {chartBills.map(b => (
               <div key={b.id} className="flex-1 flex flex-col items-center h-full justify-end">
-                <div className="text-[10px] text-gray-600 mb-1">${b.amount.toFixed(0)}</div>
+                <div className="text-[10px] text-gray-600 mb-1">{fmt$(b.amount, 0)}</div>
                 <div className="w-full bg-blue-500 rounded-t min-h-[2px]" style={{ height: `${(b.amount / maxAmount) * 100}%` }}
-                  title={`$${b.amount.toFixed(2)}`}></div>
+                  title={fmt$(b.amount)}></div>
               </div>
             ))}
           </div>
@@ -180,9 +180,9 @@ export default function UtilityDetailPage() {
             {bills.map(b => (
               <tr key={b.id}>
                 <td className="px-4 py-3">{new Date(b.bill_date).toLocaleDateString()}</td>
-                <td className="px-4 py-3 font-medium">${b.amount.toFixed(2)}</td>
+                <td className="px-4 py-3 font-medium">{fmt$(b.amount)}</td>
                 <td className="px-4 py-3">{b.usage_value != null ? `${b.usage_value} ${b.usage_unit || ''}` : '—'}</td>
-                <td className="px-4 py-3">{b.usage_value ? `$${(b.amount / b.usage_value).toFixed(2)}` : '—'}</td>
+                <td className="px-4 py-3">{b.usage_value ? fmt$(b.amount / b.usage_value) : '—'}</td>
                 <td className="px-4 py-3">
                   {billFiles[b.id] ? (
                     <span className="flex items-center gap-2">

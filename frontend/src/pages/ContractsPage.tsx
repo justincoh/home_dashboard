@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { api } from '../api/client';
+import { api, fmt$ } from '../api/client';
 import type { Contract, Vendor } from '../api/client';
 import Modal from '../components/Modal';
 
@@ -125,7 +125,7 @@ export default function ContractsPage() {
                 <td className="px-4 py-3 capitalize">{c.type}</td>
                 <td className="px-4 py-3">{c.vendor ? <Link to={`/vendors/${c.vendor.id}`} className="text-blue-600 hover:underline">{c.vendor.name}</Link> : '—'}</td>
                 <td className="px-4 py-3">{c.end_date ? new Date(c.end_date).toLocaleDateString() : '—'}</td>
-                <td className="px-4 py-3">{c.cost ? `$${c.cost.toFixed(2)}` : '—'}</td>
+                <td className="px-4 py-3">{c.cost ? fmt$(c.cost) : '—'}</td>
                 <td className="px-4 py-3 text-right space-x-2">
                   <button onClick={() => startEdit(c)} className="text-blue-600 hover:underline text-xs">Edit</button>
                   <button onClick={() => handleDelete(c.id)} className="text-red-600 hover:underline text-xs">Delete</button>

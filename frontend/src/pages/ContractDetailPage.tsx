@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { api } from '../api/client';
+import { api, fmt$ } from '../api/client';
 import type { Contract } from '../api/client';
 import FileAttachments from '../components/FileAttachments';
 
@@ -27,7 +27,7 @@ export default function ContractDetailPage() {
           </div>
           <div><span className="font-medium">Start Date:</span> {new Date(contract.start_date).toLocaleDateString()}</div>
           <div><span className="font-medium">End Date:</span> {contract.end_date ? new Date(contract.end_date).toLocaleDateString() : '—'}</div>
-          <div><span className="font-medium">Cost:</span> {contract.cost ? `$${contract.cost.toFixed(2)}` : '—'}</div>
+          <div><span className="font-medium">Cost:</span> {contract.cost ? fmt$(contract.cost) : '—'}</div>
           <div><span className="font-medium">Payment Terms:</span> {contract.payment_terms || '—'}</div>
         </div>
         {contract.notes && <p className="mt-3 text-sm text-gray-600">{contract.notes}</p>}

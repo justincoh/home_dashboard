@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { api } from '../api/client';
+import { api, fmt$ } from '../api/client';
 import type { Vendor, Quote, Contract } from '../api/client';
 
 export default function VendorDetailPage() {
@@ -45,7 +45,7 @@ export default function VendorDetailPage() {
             <tbody className="divide-y">
               {quotes.map(q => (
                 <tr key={q.id}>
-                  <td className="px-4 py-3"><Link to={`/quotes/${q.id}`} className="text-blue-600 hover:underline">${q.amount.toFixed(2)}</Link></td>
+                  <td className="px-4 py-3"><Link to={`/quotes/${q.id}`} className="text-blue-600 hover:underline">{fmt$(q.amount)}</Link></td>
                   <td className="px-4 py-3">{new Date(q.date_received).toLocaleDateString()}</td>
                   <td className="px-4 py-3">{q.project ? <Link to={`/projects/${q.project.id}`} className="text-blue-600 hover:underline">{q.project.name}</Link> : '—'}</td>
                 </tr>

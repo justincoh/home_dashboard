@@ -12,10 +12,11 @@ router = APIRouter()
 def get_dashboard(db: Session = Depends(get_db)):
     today = date.today()
     in_30_days = today + timedelta(days=30)
+    in_90_days = today + timedelta(days=90)
 
     upcoming_maintenance = (
         db.query(MaintenanceTask)
-        .filter(MaintenanceTask.next_due <= in_30_days)
+        .filter(MaintenanceTask.next_due <= in_90_days)
         .order_by(MaintenanceTask.next_due)
         .limit(10)
         .all()
