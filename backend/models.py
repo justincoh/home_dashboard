@@ -79,6 +79,17 @@ class MaintenanceTask(Base):
     last_completed = Column(Date, nullable=True)
     next_due = Column(Date, nullable=True)
 
+    logs = relationship("MaintenanceLog", back_populates="task", cascade="all, delete-orphan")
+
+
+class MaintenanceLog(Base):
+    __tablename__ = "maintenance_log"
+    id = Column(Integer, primary_key=True, index=True)
+    task_id = Column(Integer, ForeignKey("maintenance_tasks.id"), nullable=False)
+    completed_at = Column(Date, nullable=False)
+
+    task = relationship("MaintenanceTask", back_populates="logs")
+
 
 class Utility(Base):
     __tablename__ = "utilities"

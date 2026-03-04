@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import type { MaintenanceTask } from '../api/client';
 import Modal from '../components/Modal';
@@ -111,10 +112,16 @@ export default function MaintenancePage() {
             </div>
             <p className="text-xs text-gray-400 mt-1">d = days, w = weeks, m = months, y = years</p>
           </div>
-          <input type="date" placeholder="Last Completed" value={form.last_completed} onChange={e => setForm({...form, last_completed: e.target.value})}
-            className="border rounded px-3 py-2 text-sm" />
-          <input type="date" placeholder="Next Due" value={form.next_due} onChange={e => setForm({...form, next_due: e.target.value})}
-            className="border rounded px-3 py-2 text-sm" />
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Last Completed</label>
+            <input type="date" value={form.last_completed} onChange={e => setForm({...form, last_completed: e.target.value})}
+              className="border rounded px-3 py-2 text-sm w-full" />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Next Due</label>
+            <input type="date" value={form.next_due} onChange={e => setForm({...form, next_due: e.target.value})}
+              className="border rounded px-3 py-2 text-sm w-full" />
+          </div>
           <button type="submit" disabled={!freqPreview} className="col-span-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
             {editId ? 'Update' : 'Create'}
           </button>
@@ -125,7 +132,7 @@ export default function MaintenancePage() {
         {tasks.map(t => (
           <div key={t.id} className={`bg-white rounded-lg shadow p-4 flex items-center justify-between ${urgencyColor(t.next_due)}`}>
             <div>
-              <div className="font-medium">{t.name}</div>
+              <Link to={`/maintenance/${t.id}`} className="font-medium text-blue-600 hover:underline">{t.name}</Link>
               <div className="text-xs text-gray-500 mt-1">
                 Every {formatFrequency(t.frequency) || t.frequency} &middot;
                 Due: {t.next_due ? new Date(t.next_due).toLocaleDateString() : 'Not set'} &middot;

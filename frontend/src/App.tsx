@@ -4,6 +4,7 @@ import DashboardPage from './pages/DashboardPage';
 import ProjectsPage from './pages/ProjectsPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import MaintenancePage from './pages/MaintenancePage';
+import MaintenanceDetailPage from './pages/MaintenanceDetailPage';
 import UtilitiesPage from './pages/UtilitiesPage';
 import UtilityDetailPage from './pages/UtilityDetailPage';
 import ContractsPage from './pages/ContractsPage';
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
           <Route path="/maintenance" element={<MaintenancePage />} />
+          <Route path="/maintenance/:id" element={<MaintenanceDetailPage />} />
           <Route path="/utilities" element={<UtilitiesPage />} />
           <Route path="/utilities/:id" element={<UtilityDetailPage />} />
           <Route path="/contracts" element={<ContractsPage />} />

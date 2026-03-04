@@ -110,6 +110,13 @@ class MaintenanceOut(MaintenanceBase):
     model_config = {"from_attributes": True}
 
 
+class MaintenanceLogOut(BaseModel):
+    id: int
+    task_id: int
+    completed_at: date
+    model_config = {"from_attributes": True}
+
+
 # --- Utility ---
 class UtilityBase(BaseModel):
     provider_name: str

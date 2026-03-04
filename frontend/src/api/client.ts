@@ -64,6 +64,12 @@ export interface MaintenanceTask {
   next_due: string | null;
 }
 
+export interface MaintenanceLog {
+  id: number;
+  task_id: number;
+  completed_at: string;
+}
+
 export interface Utility {
   id: number;
   provider_name: string;
@@ -146,6 +152,7 @@ export const api = {
   updateMaintenance: (id: number, data: Omit<MaintenanceTask, 'id'>) => request<MaintenanceTask>(`/maintenance/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteMaintenance: (id: number) => request<void>(`/maintenance/${id}`, { method: 'DELETE' }),
   completeMaintenance: (id: number) => request<MaintenanceTask>(`/maintenance/${id}/complete`, { method: 'POST' }),
+  listMaintenanceLogs: (taskId: number) => request<MaintenanceLog[]>(`/maintenance/${taskId}/log`),
 
   // Utilities
   listUtilities: () => request<Utility[]>('/utilities'),
