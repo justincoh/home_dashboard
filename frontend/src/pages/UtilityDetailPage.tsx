@@ -120,14 +120,19 @@ export default function UtilityDetailPage() {
       {chartBills.length > 0 && (
         <div className="bg-white rounded-lg shadow p-5 mb-6">
           <h2 className="text-lg font-semibold mb-3">Cost History</h2>
-          <div className="flex items-end gap-1 h-40">
+          <div className="flex items-end gap-1" style={{ height: '160px' }}>
             {chartBills.map(b => (
-              <div key={b.id} className="flex-1 flex flex-col items-center">
-                <div className="w-full bg-blue-500 rounded-t" style={{ height: `${(b.amount / maxAmount) * 100}%` }}
+              <div key={b.id} className="flex-1 flex flex-col items-center h-full justify-end">
+                <div className="text-[10px] text-gray-600 mb-1">${b.amount.toFixed(0)}</div>
+                <div className="w-full bg-blue-500 rounded-t min-h-[2px]" style={{ height: `${(b.amount / maxAmount) * 100}%` }}
                   title={`$${b.amount.toFixed(2)}`}></div>
-                <span className="text-[10px] text-gray-500 mt-1 rotate-[-45deg] origin-top-left whitespace-nowrap">
-                  {new Date(b.bill_date).toLocaleDateString(undefined, { month: 'short', year: '2-digit' })}
-                </span>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-1 mt-1">
+            {chartBills.map(b => (
+              <div key={b.id} className="flex-1 text-center text-[10px] text-gray-500 truncate">
+                {new Date(b.bill_date).toLocaleDateString(undefined, { month: 'short', year: '2-digit' })}
               </div>
             ))}
           </div>
