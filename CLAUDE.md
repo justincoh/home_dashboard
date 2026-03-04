@@ -46,6 +46,10 @@ Manual startup:
 - All schema changes must use migrations (ALTER TABLE or similar) to preserve existing data.
 - Only drop records if the user explicitly asks for it.
 
+## Python
+
+- Always use `python3`, never `python`.
+
 ## Node Version
 
 Requires Node.js 18, 20, or >=22. Vite 5 is used for compatibility (Node 21 is not supported by Vite 7).

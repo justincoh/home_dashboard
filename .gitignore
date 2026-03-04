@@ -3,6 +3,4 @@ frontend/dist/
 __pycache__/
 *.pyc
 house_dashboard.db
-uploads/*
-!uploads/.gitkeep
 .env

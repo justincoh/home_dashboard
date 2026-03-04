@@ -148,6 +148,10 @@ class UtilityBillOut(UtilityBillBase):
     model_config = {"from_attributes": True}
 
 
+class DashboardBillOut(UtilityBillOut):
+    provider_name: str
+
+
 # --- File Attachment ---
 class FileAttachmentOut(BaseModel):
     id: int
@@ -155,6 +159,7 @@ class FileAttachmentOut(BaseModel):
     entity_id: int
     filename: str
     filepath: str
+    content_type: str | None = None
     uploaded_at: datetime
     model_config = {"from_attributes": True}
 
@@ -164,4 +169,4 @@ class DashboardData(BaseModel):
     upcoming_maintenance: list[MaintenanceOut]
     active_projects: list[ProjectOut]
     expiring_contracts: list[ContractOut]
-    recent_bills: list[UtilityBillOut]
+    recent_bills: list[DashboardBillOut]

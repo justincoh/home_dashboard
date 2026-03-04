@@ -80,7 +80,7 @@ export default function DashboardPage() {
             <ul className="space-y-2">
               {data.recent_bills.map(b => (
                 <li key={b.id} className="flex justify-between text-sm">
-                  <span>{new Date(b.bill_date).toLocaleDateString()}</span>
+                  <span>{b.provider_name ? `${b.provider_name} — ` : ''}{new Date(b.bill_date).toLocaleDateString()}</span>
                   <span className="font-medium">${b.amount.toFixed(2)}</span>
                 </li>
               ))}

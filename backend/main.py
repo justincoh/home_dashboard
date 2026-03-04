@@ -26,9 +26,6 @@ app.include_router(utilities.router, prefix="/api/utilities", tags=["utilities"]
 app.include_router(files.router, prefix="/api/files", tags=["files"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
 
-uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
-os.makedirs(uploads_dir, exist_ok=True)
-
 # Serve built frontend in production
 frontend_dist = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
 if os.path.isdir(frontend_dist):

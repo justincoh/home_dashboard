@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Numeric, Date, DateTime, Enum, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, Numeric, Date, DateTime, Enum, ForeignKey, LargeBinary
 from sqlalchemy.orm import relationship
 from database import Base
 import enum
@@ -111,4 +111,13 @@ class FileAttachment(Base):
     entity_id = Column(Integer, nullable=False)
     filename = Column(String, nullable=False)
     filepath = Column(String, nullable=False)
+    content_type = Column(String, nullable=True)
     uploaded_at = Column(DateTime, default=datetime.utcnow)
+
+    file_data = relationship("FileData", uselist=False, cascade="all, delete-orphan")
+
+
+class FileData(Base):
+    __tablename__ = "file_data"
+    id = Column(Integer, ForeignKey("file_attachments.id", ondelete="CASCADE"), primary_key=True)
+    data = Column(LargeBinary, nullable=False)

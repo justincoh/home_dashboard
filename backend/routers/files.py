@@ -1,15 +1,15 @@
+import io
+import mimetypes
+
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
-from fastapi.responses import FileResponse
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
+
 from database import get_db
-from models import FileAttachment
+from models import FileAttachment, FileData
 from schemas import FileAttachmentOut
-import os
-import uuid
 
 router = APIRouter()
-
-UPLOADS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads")
 
 
 @router.get("", response_model=list[FileAttachmentOut])
@@ -29,22 +29,20 @@ async def upload_file(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
 ):
-    ext = os.path.splitext(file.filename or "")[1]
-    stored_name = f"{uuid.uuid4().hex}{ext}"
-    filepath = os.path.join(UPLOADS_DIR, stored_name)
-
-    os.makedirs(UPLOADS_DIR, exist_ok=True)
     contents = await file.read()
-    with open(filepath, "wb") as f:
-        f.write(contents)
+    content_type = file.content_type or mimetypes.guess_type(file.filename or "")[0]
 
     db_file = FileAttachment(
         entity_type=entity_type,
         entity_id=entity_id,
-        filename=file.filename or stored_name,
-        filepath=stored_name,
+        filename=file.filename or "upload",
+        filepath="blob",
+        content_type=content_type,
     )
     db.add(db_file)
+    db.flush()
+
+    db.add(FileData(id=db_file.id, data=contents))
     db.commit()
     db.refresh(db_file)
     return db_file
@@ -55,10 +53,17 @@ def download_file(file_id: int, db: Session = Depends(get_db)):
     db_file = db.query(FileAttachment).filter(FileAttachment.id == file_id).first()
     if not db_file:
         raise HTTPException(status_code=404, detail="File not found")
-    full_path = os.path.join(UPLOADS_DIR, db_file.filepath)
-    if not os.path.exists(full_path):
-        raise HTTPException(status_code=404, detail="File not found on disk")
-    return FileResponse(full_path, filename=db_file.filename)
+
+    file_data = db.query(FileData).filter(FileData.id == file_id).first()
+    if not file_data:
+        raise HTTPException(status_code=404, detail="File data not found")
+
+    media_type = db_file.content_type or "application/octet-stream"
+    return StreamingResponse(
+        io.BytesIO(file_data.data),
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{db_file.filename}"'},
+    )
 
 
 @router.delete("/{file_id}", status_code=204)
@@ -66,8 +71,5 @@ def delete_file(file_id: int, db: Session = Depends(get_db)):
     db_file = db.query(FileAttachment).filter(FileAttachment.id == file_id).first()
     if not db_file:
         raise HTTPException(status_code=404, detail="File not found")
-    full_path = os.path.join(UPLOADS_DIR, db_file.filepath)
-    if os.path.exists(full_path):
-        os.remove(full_path)
     db.delete(db_file)
     db.commit()

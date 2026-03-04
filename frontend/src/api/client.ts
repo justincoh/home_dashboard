@@ -80,6 +80,7 @@ export interface UtilityBill {
   amount: number;
   usage_value: number | null;
   usage_unit: string | null;
+  provider_name?: string;
 }
 
 export interface FileAttachment {
@@ -88,6 +89,7 @@ export interface FileAttachment {
   entity_id: number;
   filename: string;
   filepath: string;
+  content_type: string | null;
   uploaded_at: string;
 }
 
