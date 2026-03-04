@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 house_dashboard.db
 .env
+.DS_Store
