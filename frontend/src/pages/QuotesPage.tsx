@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
 import type { Quote, Vendor, Project } from '../api/client';
+import { parseLocalDate } from '../utils/dates';
 import Modal from '../components/Modal';
 
 export default function QuotesPage() {
@@ -106,7 +107,7 @@ export default function QuotesPage() {
                 <td className="px-4 py-3 font-medium"><Link to={`/quotes/${q.id}`} className="text-blue-600 hover:underline">{fmt$(q.amount)}</Link></td>
                 <td className="px-4 py-3">{q.vendor ? <Link to={`/vendors/${q.vendor.id}`} className="text-blue-600 hover:underline">{q.vendor.name}</Link> : '—'}</td>
                 <td className="px-4 py-3">{q.project ? <Link to={`/projects/${q.project.id}`} className="text-blue-600 hover:underline">{q.project.name}</Link> : '—'}</td>
-                <td className="px-4 py-3">{new Date(q.date_received).toLocaleDateString()}</td>
+                <td className="px-4 py-3">{parseLocalDate(q.date_received).toLocaleDateString()}</td>
                 <td className="px-4 py-3 text-right space-x-2">
                   <button onClick={() => startEdit(q)} className="text-blue-600 hover:underline text-xs">Edit</button>
                   <button onClick={() => handleDelete(q.id)} className="text-red-600 hover:underline text-xs">Delete</button>

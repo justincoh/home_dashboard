@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
 import type { Utility, UtilityBill, FileAttachment } from '../api/client';
+import { parseLocalDate } from '../utils/dates';
 import Modal from '../components/Modal';
 
 export default function UtilityDetailPage() {
@@ -132,7 +133,7 @@ export default function UtilityDetailPage() {
           <div className="flex gap-1 mt-1">
             {chartBills.map(b => (
               <div key={b.id} className="flex-1 text-center text-[10px] text-gray-500 truncate">
-                {new Date(b.bill_date).toLocaleDateString(undefined, { month: 'short', year: '2-digit' })}
+                {parseLocalDate(b.bill_date).toLocaleDateString(undefined, { month: 'short', year: '2-digit' })}
               </div>
             ))}
           </div>
@@ -179,7 +180,7 @@ export default function UtilityDetailPage() {
           <tbody className="divide-y">
             {bills.map(b => (
               <tr key={b.id}>
-                <td className="px-4 py-3">{new Date(b.bill_date).toLocaleDateString()}</td>
+                <td className="px-4 py-3">{parseLocalDate(b.bill_date).toLocaleDateString()}</td>
                 <td className="px-4 py-3 font-medium">{fmt$(b.amount)}</td>
                 <td className="px-4 py-3">{b.usage_value != null ? `${b.usage_value} ${b.usage_unit || ''}` : '—'}</td>
                 <td className="px-4 py-3">{b.usage_value ? fmt$(b.amount / b.usage_value) : '—'}</td>

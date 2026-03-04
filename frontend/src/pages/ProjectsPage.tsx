@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
 import type { Project } from '../api/client';
+import { parseLocalDate } from '../utils/dates';
 import Modal from '../components/Modal';
 
 export default function ProjectsPage() {
@@ -136,9 +137,9 @@ export default function ProjectsPage() {
                 <td className="px-4 py-3">{p.budget ? fmt$(p.budget) : '—'}</td>
                 <td className="px-4 py-3">{p.actual_cost ? fmt$(p.actual_cost) : '—'}</td>
                 <td className="px-4 py-3 text-xs">
-                  {p.start_date && new Date(p.start_date).toLocaleDateString()}
+                  {p.start_date && parseLocalDate(p.start_date).toLocaleDateString()}
                   {p.start_date && p.end_date && ' — '}
-                  {p.end_date && new Date(p.end_date).toLocaleDateString()}
+                  {p.end_date && parseLocalDate(p.end_date).toLocaleDateString()}
                 </td>
                 <td className="px-4 py-3 text-right space-x-2">
                   <button onClick={() => startEdit(p)} className="text-blue-600 hover:underline text-xs">Edit</button>

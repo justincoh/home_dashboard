@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
 import type { Vendor, Quote, Contract } from '../api/client';
+import { parseLocalDate } from '../utils/dates';
 
 export default function VendorDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -46,7 +47,7 @@ export default function VendorDetailPage() {
               {quotes.map(q => (
                 <tr key={q.id}>
                   <td className="px-4 py-3"><Link to={`/quotes/${q.id}`} className="text-blue-600 hover:underline">{fmt$(q.amount)}</Link></td>
-                  <td className="px-4 py-3">{new Date(q.date_received).toLocaleDateString()}</td>
+                  <td className="px-4 py-3">{parseLocalDate(q.date_received).toLocaleDateString()}</td>
                   <td className="px-4 py-3">{q.project ? <Link to={`/projects/${q.project.id}`} className="text-blue-600 hover:underline">{q.project.name}</Link> : '—'}</td>
                 </tr>
               ))}
@@ -71,7 +72,7 @@ export default function VendorDetailPage() {
                 <tr key={c.id}>
                   <td className="px-4 py-3"><Link to={`/contracts/${c.id}`} className="text-blue-600 hover:underline">{c.name}</Link></td>
                   <td className="px-4 py-3 capitalize">{c.type}</td>
-                  <td className="px-4 py-3">{c.end_date ? new Date(c.end_date).toLocaleDateString() : '—'}</td>
+                  <td className="px-4 py-3">{c.end_date ? parseLocalDate(c.end_date).toLocaleDateString() : '—'}</td>
                 </tr>
               ))}
             </tbody>

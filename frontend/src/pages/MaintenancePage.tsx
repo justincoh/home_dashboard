@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import type { MaintenanceTask } from '../api/client';
+import { parseLocalDate } from '../utils/dates';
 import Modal from '../components/Modal';
 
 function formatFrequency(freq: string): string | null {
@@ -76,7 +77,7 @@ export default function MaintenancePage() {
 
   const urgencyColor = (nextDue: string | null) => {
     if (!nextDue) return '';
-    const days = Math.ceil((new Date(nextDue).getTime() - Date.now()) / 86400000);
+    const days = Math.ceil((parseLocalDate(nextDue).getTime() - Date.now()) / 86400000);
     if (days < 0) return 'bg-red-50 border-l-4 border-red-500';
     if (days < 7) return 'bg-orange-50 border-l-4 border-orange-500';
     if (days < 30) return 'bg-yellow-50 border-l-4 border-yellow-400';
@@ -135,8 +136,8 @@ export default function MaintenancePage() {
               <Link to={`/maintenance/${t.id}`} className="font-medium text-blue-600 hover:underline">{t.name}</Link>
               <div className="text-xs text-gray-500 mt-1">
                 Every {formatFrequency(t.frequency) || t.frequency} &middot;
-                Due: {t.next_due ? new Date(t.next_due).toLocaleDateString() : 'Not set'} &middot;
-                Last: {t.last_completed ? new Date(t.last_completed).toLocaleDateString() : 'Never'}
+                Due: {t.next_due ? parseLocalDate(t.next_due).toLocaleDateString() : 'Not set'} &middot;
+                Last: {t.last_completed ? parseLocalDate(t.last_completed).toLocaleDateString() : 'Never'}
               </div>
             </div>
             <div className="flex gap-2">

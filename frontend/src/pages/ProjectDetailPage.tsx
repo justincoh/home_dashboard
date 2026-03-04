@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
 import type { Project, Quote } from '../api/client';
+import { parseLocalDate } from '../utils/dates';
 import FileAttachments from '../components/FileAttachments';
 
 export default function ProjectDetailPage() {
@@ -37,8 +38,8 @@ export default function ProjectDetailPage() {
           </div>
           <div><span className="font-medium">Budget:</span> {project.budget ? fmt$(project.budget) : '—'}</div>
           <div><span className="font-medium">Actual Cost:</span> {project.actual_cost ? fmt$(project.actual_cost) : '—'}</div>
-          <div><span className="font-medium">Start Date:</span> {project.start_date ? new Date(project.start_date).toLocaleDateString() : '—'}</div>
-          <div><span className="font-medium">End Date:</span> {project.end_date ? new Date(project.end_date).toLocaleDateString() : '—'}</div>
+          <div><span className="font-medium">Start Date:</span> {project.start_date ? parseLocalDate(project.start_date).toLocaleDateString() : '—'}</div>
+          <div><span className="font-medium">End Date:</span> {project.end_date ? parseLocalDate(project.end_date).toLocaleDateString() : '—'}</div>
         </div>
         {project.description && <p className="mt-3 text-sm text-gray-600">{project.description}</p>}
       </div>
@@ -59,7 +60,7 @@ export default function ProjectDetailPage() {
                 <tr key={q.id}>
                   <td className="px-4 py-3"><Link to={`/quotes/${q.id}`} className="text-blue-600 hover:underline">{fmt$(q.amount)}</Link></td>
                   <td className="px-4 py-3">{q.vendor ? <Link to={`/vendors/${q.vendor.id}`} className="text-blue-600 hover:underline">{q.vendor.name}</Link> : '—'}</td>
-                  <td className="px-4 py-3">{new Date(q.date_received).toLocaleDateString()}</td>
+                  <td className="px-4 py-3">{parseLocalDate(q.date_received).toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>

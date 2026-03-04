@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import type { MaintenanceTask, MaintenanceLog } from '../api/client';
+import { parseLocalDate } from '../utils/dates';
 
 function formatFrequency(freq: string): string | null {
   const match = freq.trim().match(/^(\d+)\s*(d|w|m|y)$/i);
@@ -54,8 +55,8 @@ export default function MaintenanceDetailPage() {
       <div className="bg-white rounded-lg shadow p-5 mb-6">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div><span className="font-medium">Frequency:</span> Every {formatFrequency(task.frequency) || task.frequency}</div>
-          <div><span className="font-medium">Next Due:</span> {task.next_due ? new Date(task.next_due).toLocaleDateString() : 'Not set'}</div>
-          <div><span className="font-medium">Last Completed:</span> {task.last_completed ? new Date(task.last_completed).toLocaleDateString() : 'Never'}</div>
+          <div><span className="font-medium">Next Due:</span> {task.next_due ? parseLocalDate(task.next_due).toLocaleDateString() : 'Not set'}</div>
+          <div><span className="font-medium">Last Completed:</span> {task.last_completed ? parseLocalDate(task.last_completed).toLocaleDateString() : 'Never'}</div>
         </div>
         <div className="flex gap-2 mt-4">
           <button onClick={handleComplete}
@@ -80,7 +81,7 @@ export default function MaintenanceDetailPage() {
           <tbody className="divide-y">
             {logs.map(log => (
               <tr key={log.id}>
-                <td className="px-4 py-3">{new Date(log.completed_at).toLocaleDateString()}</td>
+                <td className="px-4 py-3">{parseLocalDate(log.completed_at).toLocaleDateString()}</td>
               </tr>
             ))}
           </tbody>

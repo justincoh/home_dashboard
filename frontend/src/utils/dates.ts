@@ -1,0 +1,5 @@
+/** Parse a YYYY-MM-DD string as a local date (avoids UTC timezone shift) */
+export function parseLocalDate(dateStr: string): Date {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}

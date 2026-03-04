@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
 import type { Contract, Vendor } from '../api/client';
+import { parseLocalDate } from '../utils/dates';
 import Modal from '../components/Modal';
 
 export default function ContractsPage() {
@@ -63,7 +64,7 @@ export default function ContractsPage() {
   const sorted = [...contracts].sort((a, b) => {
     if (!a.end_date) return 1;
     if (!b.end_date) return -1;
-    return new Date(a.end_date).getTime() - new Date(b.end_date).getTime();
+    return parseLocalDate(a.end_date).getTime() - parseLocalDate(b.end_date).getTime();
   });
 
   return (
@@ -124,7 +125,7 @@ export default function ContractsPage() {
                 <td className="px-4 py-3"><Link to={`/contracts/${c.id}`} className="text-blue-600 hover:underline">{c.name}</Link></td>
                 <td className="px-4 py-3 capitalize">{c.type}</td>
                 <td className="px-4 py-3">{c.vendor ? <Link to={`/vendors/${c.vendor.id}`} className="text-blue-600 hover:underline">{c.vendor.name}</Link> : '—'}</td>
-                <td className="px-4 py-3">{c.end_date ? new Date(c.end_date).toLocaleDateString() : '—'}</td>
+                <td className="px-4 py-3">{c.end_date ? parseLocalDate(c.end_date).toLocaleDateString() : '—'}</td>
                 <td className="px-4 py-3">{c.cost ? fmt$(c.cost) : '—'}</td>
                 <td className="px-4 py-3 text-right space-x-2">
                   <button onClick={() => startEdit(c)} className="text-blue-600 hover:underline text-xs">Edit</button>

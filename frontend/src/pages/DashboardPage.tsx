@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
+import { parseLocalDate } from '../utils/dates';
 import type { DashboardData } from '../api/client';
 
 export default function DashboardPage() {
@@ -24,8 +25,8 @@ export default function DashboardPage() {
               {data.upcoming_maintenance.map(t => (
                 <li key={t.id} className="flex justify-between text-sm">
                   <Link to="/maintenance" className="text-blue-600 hover:underline">{t.name}</Link>
-                  <span className={`${t.next_due && new Date(t.next_due) < new Date() ? 'text-red-600 font-semibold' : 'text-gray-500'}`}>
-                    {t.next_due ? new Date(t.next_due).toLocaleDateString() : 'No date'}
+                  <span className={`${t.next_due && parseLocalDate(t.next_due) < new Date() ? 'text-red-600 font-semibold' : 'text-gray-500'}`}>
+                    {t.next_due ? parseLocalDate(t.next_due).toLocaleDateString() : 'No date'}
                   </span>
                 </li>
               ))}
@@ -64,7 +65,7 @@ export default function DashboardPage() {
               {data.expiring_contracts.map(c => (
                 <li key={c.id} className="flex justify-between text-sm">
                   <Link to={`/contracts/${c.id}`} className="text-blue-600 hover:underline">{c.name}</Link>
-                  <span className="text-gray-500">{c.end_date ? new Date(c.end_date).toLocaleDateString() : ''}</span>
+                  <span className="text-gray-500">{c.end_date ? parseLocalDate(c.end_date).toLocaleDateString() : ''}</span>
                 </li>
               ))}
             </ul>
@@ -80,7 +81,7 @@ export default function DashboardPage() {
             <ul className="space-y-2">
               {data.recent_bills.map(b => (
                 <li key={b.id} className="flex justify-between text-sm">
-                  <span>{b.provider_name ? `${b.provider_name} — ` : ''}{new Date(b.bill_date).toLocaleDateString()}</span>
+                  <span>{b.provider_name ? `${b.provider_name} — ` : ''}{parseLocalDate(b.bill_date).toLocaleDateString()}</span>
                   <span className="font-medium">{fmt$(b.amount)}</span>
                 </li>
               ))}
