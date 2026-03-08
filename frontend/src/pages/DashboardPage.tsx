@@ -34,12 +34,10 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Active Projects */}
-        <div className="bg-white rounded-xl border border-warm-200 p-6 hover:border-warm-300 transition-colors">
-          <h2 className="font-heading text-lg text-warm-800 mb-3">Active Projects</h2>
-          {data.active_projects.length === 0 ? (
-            <p className="text-warm-400 text-sm italic">No active projects.</p>
-          ) : (
+        {/* Active Projects — hidden when empty */}
+        {data.active_projects.length > 0 && (
+          <div className="bg-white rounded-xl border border-warm-200 p-6 hover:border-warm-300 transition-colors">
+            <h2 className="font-heading text-lg text-warm-800 mb-3">Active Projects</h2>
             <ul className="space-y-2">
               {data.active_projects.map(p => (
                 <li key={p.id} className="flex justify-between text-sm">
@@ -52,15 +50,13 @@ export default function DashboardPage() {
                 </li>
               ))}
             </ul>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Expiring Contracts */}
-        <div className="bg-white rounded-xl border border-warm-200 p-6 hover:border-warm-300 transition-colors">
-          <h2 className="font-heading text-lg text-warm-800 mb-3">Expiring Contracts</h2>
-          {data.expiring_contracts.length === 0 ? (
-            <p className="text-warm-400 text-sm italic">No contracts expiring soon.</p>
-          ) : (
+        {/* Expiring Contracts — hidden when empty */}
+        {data.expiring_contracts.length > 0 && (
+          <div className="bg-white rounded-xl border border-warm-200 p-6 hover:border-warm-300 transition-colors">
+            <h2 className="font-heading text-lg text-warm-800 mb-3">Expiring Contracts</h2>
             <ul className="space-y-2">
               {data.expiring_contracts.map(c => (
                 <li key={c.id} className="flex justify-between text-sm">
@@ -69,8 +65,8 @@ export default function DashboardPage() {
                 </li>
               ))}
             </ul>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Recent Bills */}
         <div className="bg-white rounded-xl border border-warm-200 p-6 hover:border-warm-300 transition-colors">
