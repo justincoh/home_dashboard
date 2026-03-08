@@ -14,21 +14,29 @@ export default function QuoteDetailPage() {
     api.getQuote(Number(id)).then(setQuote);
   }, [id]);
 
-  if (!quote) return <p className="text-gray-500">Loading...</p>;
+  if (!quote) return <p className="text-warm-400 font-medium animate-pulse">Loading...</p>;
 
   return (
     <div>
-      <Link to="/quotes" className="text-blue-600 hover:underline text-sm">&larr; Back to Quotes</Link>
-      <h1 className="text-2xl font-bold mt-2 mb-4">Quote — {fmt$(quote.amount)}</h1>
-      <div className="bg-white rounded-lg shadow p-5 mb-6">
+      <Link to="/quotes" className="text-warm-500 hover:text-warm-700 text-sm font-medium transition-colors">&larr; Back to Quotes</Link>
+      <h1 className="font-heading text-2xl text-warm-900 mt-2 mb-4">Quote — {fmt$(quote.amount)}</h1>
+      <div className="bg-white rounded-xl border border-warm-200 p-6 mb-8">
         <div className="grid grid-cols-2 gap-4 text-sm">
-          <div><span className="font-medium">Amount:</span> {fmt$(quote.amount)}</div>
-          <div><span className="font-medium">Date Received:</span> {parseLocalDate(quote.date_received).toLocaleDateString()}</div>
-          <div><span className="font-medium">Vendor:</span>{' '}
-            {quote.vendor ? <Link to={`/vendors/${quote.vendor.id}`} className="text-blue-600 hover:underline">{quote.vendor.name}</Link> : '—'}
+          <div>
+            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Amount</div>
+            <div>{fmt$(quote.amount)}</div>
           </div>
-          <div><span className="font-medium">Project:</span>{' '}
-            {quote.project ? <Link to={`/projects/${quote.project.id}`} className="text-blue-600 hover:underline">{quote.project.name}</Link> : '—'}
+          <div>
+            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Date Received</div>
+            <div>{parseLocalDate(quote.date_received).toLocaleDateString()}</div>
+          </div>
+          <div>
+            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Vendor</div>
+            <div>{quote.vendor ? <Link to={`/vendors/${quote.vendor.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{quote.vendor.name}</Link> : '—'}</div>
+          </div>
+          <div>
+            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Project</div>
+            <div>{quote.project ? <Link to={`/projects/${quote.project.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{quote.project.name}</Link> : '—'}</div>
           </div>
         </div>
       </div>
