@@ -4,6 +4,33 @@ from typing import Optional
 from models import ProjectStatus, ContractType
 
 
+# --- Search ---
+class SearchResult(BaseModel):
+    entity_type: str
+    id: int
+    name: str
+    subtitle: Optional[str] = None
+
+
+# --- Reports ---
+class UtilityExpenseBreakdown(BaseModel):
+    utility_id: int
+    provider_name: str
+    utility_type: str
+    total: float
+
+
+class AnnualReport(BaseModel):
+    year: int
+    utilities_total: float
+    utilities_breakdown: list[UtilityExpenseBreakdown]
+    projects_total: float
+    projects: list["ProjectOut"]
+    contracts_total: float
+    contracts: list["ContractOut"]
+    grand_total: float
+
+
 # --- Vendor ---
 class VendorBase(BaseModel):
     name: str

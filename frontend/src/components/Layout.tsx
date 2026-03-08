@@ -1,4 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import SearchBar from './SearchBar';
 
 const navItems = [
   { path: '/', label: 'Dashboard' },
@@ -8,6 +9,7 @@ const navItems = [
   { path: '/contracts', label: 'Contracts' },
   { path: '/vendors', label: 'Vendors' },
   { path: '/quotes', label: 'Quotes' },
+  { path: '/reports', label: 'Reports' },
 ];
 
 export default function Layout() {
@@ -32,6 +34,9 @@ export default function Layout() {
                   {item.label}
                 </Link>
               ))}
+            </div>
+            <div className="ml-auto">
+              <SearchBar />
             </div>
           </div>
         </div>

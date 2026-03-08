@@ -111,6 +111,31 @@ export interface DashboardData {
   recent_bills: UtilityBill[];
 }
 
+export interface UtilityExpenseBreakdown {
+  utility_id: number;
+  provider_name: string;
+  utility_type: string;
+  total: number;
+}
+
+export interface AnnualReport {
+  year: number;
+  utilities_total: number;
+  utilities_breakdown: UtilityExpenseBreakdown[];
+  projects_total: number;
+  projects: Project[];
+  contracts_total: number;
+  contracts: Contract[];
+  grand_total: number;
+}
+
+export interface SearchResult {
+  entity_type: string;
+  id: number;
+  name: string;
+  subtitle: string | null;
+}
+
 // API functions
 export const api = {
   // Dashboard
@@ -171,6 +196,12 @@ export const api = {
   createBill: (utilityId: number, data: Omit<UtilityBill, 'id'>) => request<UtilityBill>(`/utilities/${utilityId}/bills`, { method: 'POST', body: JSON.stringify(data) }),
   updateBill: (billId: number, data: Omit<UtilityBill, 'id'>) => request<UtilityBill>(`/utilities/bills/${billId}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteBill: (billId: number) => request<void>(`/utilities/bills/${billId}`, { method: 'DELETE' }),
+
+  // Reports
+  getAnnualReport: (year: number) => request<AnnualReport>(`/reports/annual?year=${year}`),
+
+  // Search
+  search: (q: string) => request<SearchResult[]>(`/search?q=${encodeURIComponent(q)}`),
 
   // Files
   listFiles: (entityType: string, entityId: number) => request<FileAttachment[]>(`/files?entity_type=${entityType}&entity_id=${entityId}`),

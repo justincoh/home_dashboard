@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from database import engine, Base
-from routers import projects, maintenance, utilities, contracts, vendors, quotes, files, dashboard
+from routers import projects, maintenance, utilities, contracts, vendors, quotes, files, dashboard, reports, search
 import os
 
 Base.metadata.create_all(bind=engine)
@@ -25,6 +25,8 @@ app.include_router(maintenance.router, prefix="/api/maintenance", tags=["mainten
 app.include_router(utilities.router, prefix="/api/utilities", tags=["utilities"])
 app.include_router(files.router, prefix="/api/files", tags=["files"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
+app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
+app.include_router(search.router, prefix="/api/search", tags=["search"])
 
 # Serve built frontend in production
 frontend_dist = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
