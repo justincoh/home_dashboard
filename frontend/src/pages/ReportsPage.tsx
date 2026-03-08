@@ -6,17 +6,70 @@ import type { AnnualReport } from '../api/client';
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
+interface ExpenseItem {
+  id: number;
+  name: string;
+  cost: number | null;
+  start_date: string | null;
+  end_date: string | null;
+}
+
+interface ExpenseCardProps {
+  title: string;
+  total: number;
+  emptyMessage: string;
+  basePath: string;
+  items: ExpenseItem[];
+}
+
+function ExpenseCard({ title, total, emptyMessage, basePath, items }: ExpenseCardProps) {
+  return (
+    <div className="bg-white rounded-xl border border-warm-200 p-6 hover:border-warm-300 transition-colors">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-heading text-lg text-warm-800">{title}</h2>
+        <span className="font-heading text-lg text-warm-900">{fmt$(total)}</span>
+      </div>
+      {items.length === 0 ? (
+        <p className="text-warm-400 text-sm italic">{emptyMessage}</p>
+      ) : (
+        <ul className="space-y-3">
+          {items.map(item => (
+            <li key={item.id} className="flex justify-between items-start text-sm">
+              <div>
+                <Link to={`${basePath}/${item.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">
+                  {item.name}
+                </Link>
+                {item.start_date && (
+                  <p className="text-warm-400 text-xs mt-0.5">
+                    {item.start_date}{item.end_date ? ` — ${item.end_date}` : ''}
+                  </p>
+                )}
+              </div>
+              <span className="font-medium text-warm-800 whitespace-nowrap ml-2">
+                {item.cost != null ? fmt$(item.cost) : '—'}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export default function ReportsPage() {
   const [year, setYear] = useState(currentYear);
   const [report, setReport] = useState<AnnualReport | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loadedYear, setLoadedYear] = useState<number | null>(null);
+  const loading = loadedYear !== year;
 
   useEffect(() => {
-    setLoading(true);
+    let stale = false;
     api.getAnnualReport(year).then(data => {
+      if (stale) return;
       setReport(data);
-      setLoading(false);
+      setLoadedYear(year);
     });
+    return () => { stale = true; };
   }, [year]);
 
   return (
@@ -38,14 +91,13 @@ export default function ReportsPage() {
         <p className="text-warm-400 font-medium animate-pulse">Loading...</p>
       ) : report ? (
         <>
-          {/* Grand Total */}
           <div className="bg-warm-900 text-white rounded-xl p-6 mb-6">
             <p className="text-warm-400 text-sm font-medium mb-1">Grand Total for {report.year}</p>
             <p className="font-heading text-3xl">{fmt$(report.grand_total)}</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Utilities */}
+            {/* Utilities -- uses a table layout, so rendered directly */}
             <div className="bg-white rounded-xl border border-warm-200 p-6 hover:border-warm-300 transition-colors">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-heading text-lg text-warm-800">Utilities</h2>
@@ -78,63 +130,27 @@ export default function ReportsPage() {
               )}
             </div>
 
-            {/* Projects */}
-            <div className="bg-white rounded-xl border border-warm-200 p-6 hover:border-warm-300 transition-colors">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-heading text-lg text-warm-800">Projects</h2>
-                <span className="font-heading text-lg text-warm-900">{fmt$(report.projects_total)}</span>
-              </div>
-              {report.projects.length === 0 ? (
-                <p className="text-warm-400 text-sm italic">No project expenses this year.</p>
-              ) : (
-                <ul className="space-y-3">
-                  {report.projects.map(p => (
-                    <li key={p.id} className="flex justify-between items-start text-sm">
-                      <div>
-                        <Link to={`/projects/${p.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">
-                          {p.name}
-                        </Link>
-                        {p.start_date && (
-                          <p className="text-warm-400 text-xs mt-0.5">
-                            {p.start_date}{p.end_date ? ` — ${p.end_date}` : ''}
-                          </p>
-                        )}
-                      </div>
-                      <span className="font-medium text-warm-800 whitespace-nowrap ml-2">{p.actual_cost != null ? fmt$(p.actual_cost) : '—'}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            <ExpenseCard
+              title="Projects"
+              total={report.projects_total}
+              emptyMessage="No project expenses this year."
+              basePath="/projects"
+              items={report.projects.map(p => ({
+                id: p.id, name: p.name, cost: p.actual_cost,
+                start_date: p.start_date, end_date: p.end_date,
+              }))}
+            />
 
-            {/* Contracts */}
-            <div className="bg-white rounded-xl border border-warm-200 p-6 hover:border-warm-300 transition-colors">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-heading text-lg text-warm-800">Contracts</h2>
-                <span className="font-heading text-lg text-warm-900">{fmt$(report.contracts_total)}</span>
-              </div>
-              {report.contracts.length === 0 ? (
-                <p className="text-warm-400 text-sm italic">No contract expenses this year.</p>
-              ) : (
-                <ul className="space-y-3">
-                  {report.contracts.map(c => (
-                    <li key={c.id} className="flex justify-between items-start text-sm">
-                      <div>
-                        <Link to={`/contracts/${c.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">
-                          {c.name}
-                        </Link>
-                        {c.start_date && (
-                          <p className="text-warm-400 text-xs mt-0.5">
-                            {c.start_date}{c.end_date ? ` — ${c.end_date}` : ''}
-                          </p>
-                        )}
-                      </div>
-                      <span className="font-medium text-warm-800 whitespace-nowrap ml-2">{c.cost != null ? fmt$(c.cost) : '—'}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            <ExpenseCard
+              title="Contracts"
+              total={report.contracts_total}
+              emptyMessage="No contract expenses this year."
+              basePath="/contracts"
+              items={report.contracts.map(c => ({
+                id: c.id, name: c.name, cost: c.cost,
+                start_date: c.start_date, end_date: c.end_date,
+              }))}
+            />
           </div>
         </>
       ) : null}

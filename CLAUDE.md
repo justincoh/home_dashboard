@@ -60,7 +60,7 @@ cp house_dashboard.db house_dashboard_YYYYMMDD.db
 
 Then update the "Last backup" date below. Do not delete old backups.
 
-**Last backup: 2026-03-04**
+**Last backup: 2026-03-08**
 
 ## Python
 

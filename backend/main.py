@@ -1,9 +1,10 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from database import engine, Base
 from routers import projects, maintenance, utilities, contracts, vendors, quotes, files, dashboard, reports, search
-import os
 
 Base.metadata.create_all(bind=engine)
 
