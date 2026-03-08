@@ -27,7 +27,11 @@ Manual startup:
 
 **Frontend**: React 19 + TypeScript + Vite 5 + Tailwind CSS v4. All API calls go through `frontend/src/api/client.ts` which exports a single `api` object with typed methods. Pages live in `frontend/src/pages/`, shared components in `frontend/src/components/`.
 
-**Routing**: React Router v7 with `Layout` component wrapping all routes. Each entity has a list page (`/entities`) and detail page (`/entities/:id`).
+**Routing**: React Router v7 with `Layout` component wrapping all routes. Each entity has a list page (`/entities`) and detail page (`/entities/:id`). Additional pages: `/reports` (annual expense report).
+
+**Search**: Global search bar in nav (`SearchBar.tsx`) with 300ms debounce. Backend `GET /api/search?q=` searches across vendors, projects, contracts, utilities, and maintenance tasks (case-insensitive LIKE, 5 results per entity type).
+
+**Reports**: `GET /api/reports/annual?year=` aggregates utility bills (grouped by provider), projects with actual_cost, and contracts with cost for a given year. Router in `backend/routers/reports.py`.
 
 ## Key Conventions
 
