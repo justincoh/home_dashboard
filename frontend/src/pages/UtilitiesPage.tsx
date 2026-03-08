@@ -9,14 +9,14 @@ export default function UtilitiesPage() {
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState({
-    provider_name: '', account_number: '', contact_info: '', contract_terms: '', utility_type: '',
+    provider_name: '', account_number: '', contact_info: '', contract_terms: '', utility_type: '', notes: '',
   });
 
   const load = () => api.listUtilities().then(setUtilities);
   useEffect(() => { load(); }, []);
 
   const resetForm = () => {
-    setForm({ provider_name: '', account_number: '', contact_info: '', contract_terms: '', utility_type: '' });
+    setForm({ provider_name: '', account_number: '', contact_info: '', contract_terms: '', utility_type: '', notes: '' });
     setShowForm(false);
     setEditId(null);
   };
@@ -26,7 +26,7 @@ export default function UtilitiesPage() {
     const data = {
       provider_name: form.provider_name, utility_type: form.utility_type,
       account_number: form.account_number || null, contact_info: form.contact_info || null,
-      contract_terms: form.contract_terms || null,
+      contract_terms: form.contract_terms || null, notes: form.notes || null,
     };
     if (editId) {
       await api.updateUtility(editId, data);
@@ -41,7 +41,7 @@ export default function UtilitiesPage() {
     setForm({
       provider_name: u.provider_name, utility_type: u.utility_type,
       account_number: u.account_number || '', contact_info: u.contact_info || '',
-      contract_terms: u.contract_terms || '',
+      contract_terms: u.contract_terms || '', notes: u.notes || '',
     });
     setEditId(u.id);
     setShowForm(true);
@@ -75,6 +75,8 @@ export default function UtilitiesPage() {
             onChange={e => setForm({...form, contact_info: e.target.value})} className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
           <textarea placeholder="Contract Terms" value={form.contract_terms}
             onChange={e => setForm({...form, contract_terms: e.target.value})} className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400 col-span-2" rows={2} />
+          <textarea placeholder="Notes" value={form.notes}
+            onChange={e => setForm({...form, notes: e.target.value})} className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400 col-span-2" rows={2} />
           <button type="submit" className="col-span-2 bg-sage-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-sage-800 text-sm">
             {editId ? 'Update' : 'Create'}
           </button>

@@ -122,6 +122,10 @@ export default function UtilityDetailPage() {
             <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Contact</div>
             <div>{utility.contact_info || '—'}</div>
           </div>
+          <div>
+            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Notes</div>
+            <div>{utility.notes || '—'}</div>
+          </div>
         </div>
         {utility.contract_terms && <p className="text-warm-600 leading-relaxed border-t border-warm-100 pt-4 mt-4">{utility.contract_terms}</p>}
       </div>

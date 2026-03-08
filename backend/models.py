@@ -99,6 +99,7 @@ class Utility(Base):
     contact_info = Column(String, nullable=True)
     contract_terms = Column(Text, nullable=True)
     utility_type = Column(String, nullable=False)
+    notes = Column(Text, nullable=True)
 
     bills = relationship("UtilityBill", back_populates="utility", cascade="all, delete-orphan")
 

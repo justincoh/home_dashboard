@@ -124,6 +124,7 @@ class UtilityBase(BaseModel):
     contact_info: Optional[str] = None
     contract_terms: Optional[str] = None
     utility_type: str
+    notes: Optional[str] = None
 
 class UtilityCreate(UtilityBase):
     pass

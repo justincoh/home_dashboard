@@ -81,6 +81,7 @@ export interface Utility {
   contact_info: string | null;
   contract_terms: string | null;
   utility_type: string;
+  notes: string | null;
 }
 
 export interface UtilityBill {
