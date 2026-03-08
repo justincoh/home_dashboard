@@ -97,7 +97,7 @@ export default function UtilityDetailPage() {
     loadBills();
   };
 
-  if (!utility) return <p className="text-holo-500 font-medium animate-pulse">Loading...</p>;
+  if (!utility) return <p className="text-warm-400 font-medium animate-pulse">Loading...</p>;
 
   // Simple bar chart using CSS
   const chartBills = [...bills].reverse().slice(-12);
@@ -105,43 +105,43 @@ export default function UtilityDetailPage() {
 
   return (
     <div>
-      <Link to="/utilities" className="text-holo-500 hover:text-neon-400 text-sm font-medium transition-colors">&larr; Back to Utilities</Link>
-      <h1 className="font-heading text-2xl text-holo-50 mt-2 mb-4">{utility.provider_name}</h1>
+      <Link to="/utilities" className="text-warm-500 hover:text-warm-700 text-sm font-medium transition-colors">&larr; Back to Utilities</Link>
+      <h1 className="font-heading text-2xl text-warm-900 mt-2 mb-4">{utility.provider_name}</h1>
 
-      <div className="bg-void-400 rounded-xl border border-void-200 p-6 mb-8">
+      <div className="bg-white rounded-xl border border-warm-200 p-6 mb-8">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <div className="text-holo-500 text-xs font-semibold uppercase tracking-wider mb-1">Type</div>
+            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Type</div>
             <div className="capitalize">{utility.utility_type}</div>
           </div>
           <div>
-            <div className="text-holo-500 text-xs font-semibold uppercase tracking-wider mb-1">Account #</div>
+            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Account #</div>
             <div>{utility.account_number || '—'}</div>
           </div>
           <div>
-            <div className="text-holo-500 text-xs font-semibold uppercase tracking-wider mb-1">Contact</div>
+            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Contact</div>
             <div>{utility.contact_info || '—'}</div>
           </div>
         </div>
-        {utility.contract_terms && <p className="text-holo-300 leading-relaxed border-t border-void-200 pt-4 mt-4">{utility.contract_terms}</p>}
+        {utility.contract_terms && <p className="text-warm-600 leading-relaxed border-t border-warm-100 pt-4 mt-4">{utility.contract_terms}</p>}
       </div>
 
       {/* Usage Chart */}
       {chartBills.length > 0 && (
-        <div className="bg-void-400 rounded-xl border border-void-200 p-6 mb-8">
-          <h2 className="font-heading text-lg text-holo-100 mb-3">Cost History</h2>
+        <div className="bg-white rounded-xl border border-warm-200 p-6 mb-8">
+          <h2 className="font-heading text-lg text-warm-800 mb-3">Cost History</h2>
           <div className="flex items-end gap-1" style={{ height: '160px' }}>
             {chartBills.map(b => (
               <div key={b.id} className="flex-1 flex flex-col items-center h-full justify-end">
-                <div className="text-[10px] text-holo-300 mb-1">{fmt$(b.amount, 0)}</div>
-                <div className="w-full bg-neon-500 hover:bg-neon-400 transition-colors rounded-t-md min-h-[2px]" style={{ height: `${(b.amount / maxAmount) * 100}%` }}
+                <div className="text-[10px] text-warm-600 mb-1">{fmt$(b.amount, 0)}</div>
+                <div className="w-full bg-accent-600 hover:bg-accent-700 transition-colors rounded-t-md min-h-[2px]" style={{ height: `${(b.amount / maxAmount) * 100}%` }}
                   title={fmt$(b.amount)}></div>
               </div>
             ))}
           </div>
           <div className="flex gap-1 mt-1">
             {chartBills.map(b => (
-              <div key={b.id} className="flex-1 text-center text-[10px] text-holo-500 truncate">
+              <div key={b.id} className="flex-1 text-center text-[10px] text-warm-400 truncate">
                 {parseLocalDate(b.bill_date).toLocaleDateString(undefined, { month: 'short', year: '2-digit' })}
               </div>
             ))}
@@ -151,9 +151,9 @@ export default function UtilityDetailPage() {
 
       {/* Bills */}
       <div className="flex justify-between items-center mb-2">
-        <h2 className="font-heading text-lg text-holo-100">Bills</h2>
+        <h2 className="font-heading text-lg text-warm-800">Bills</h2>
         <button onClick={() => { resetBillForm(); setShowBillForm(true); }}
-          className="bg-neon-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-neon-500 shadow-sm glow-neon">
+          className="bg-accent-700 text-white px-3 py-1 rounded-lg text-sm hover:bg-accent-600 shadow-sm">
           Add Bill
         </button>
       </div>
@@ -161,34 +161,34 @@ export default function UtilityDetailPage() {
       <Modal open={showBillForm} onClose={resetBillForm} title={editBillId ? 'Edit Bill' : 'Add Bill'}>
         <form onSubmit={handleBillSubmit} className="grid grid-cols-2 gap-3">
           <input required type="date" value={billForm.bill_date} onChange={e => setBillForm({...billForm, bill_date: e.target.value})}
-            className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500" />
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50" />
           <input required placeholder="Amount" type="number" step="0.01" value={billForm.amount}
-            onChange={e => setBillForm({...billForm, amount: e.target.value})} className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500 placeholder:text-holo-600" />
+            onChange={e => setBillForm({...billForm, amount: e.target.value})} className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
           <input placeholder="Usage Value" type="number" step="0.01" value={billForm.usage_value}
-            onChange={e => setBillForm({...billForm, usage_value: e.target.value})} className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500 placeholder:text-holo-600" />
+            onChange={e => setBillForm({...billForm, usage_value: e.target.value})} className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
           <input placeholder="Usage Unit (kWh, gallons...)" value={billForm.usage_unit}
-            onChange={e => setBillForm({...billForm, usage_unit: e.target.value})} className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500 placeholder:text-holo-600" />
-          <button type="submit" className="col-span-2 bg-cyber-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-cyber-500 text-sm glow-cyber">
+            onChange={e => setBillForm({...billForm, usage_unit: e.target.value})} className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
+          <button type="submit" className="col-span-2 bg-sage-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-sage-800 text-sm">
             {editBillId ? 'Update' : 'Add Bill'}
           </button>
         </form>
       </Modal>
 
-      <div className="bg-void-400 rounded-xl border border-void-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-warm-200 overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-void-100">
+          <thead className="bg-warm-100">
             <tr>
-              <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">Date</th>
-              <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">Amount</th>
-              <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">Usage</th>
-              <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">Cost per Unit</th>
-              <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">PDF</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Date</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Amount</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Usage</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Cost per Unit</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">PDF</th>
               <th className="px-5 py-3.5"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-void-200">
+          <tbody className="divide-y divide-warm-100">
             {bills.map(b => (
-              <tr key={b.id} className="hover:bg-void-50 transition-colors">
+              <tr key={b.id} className="hover:bg-warm-50 transition-colors">
                 <td className="px-5 py-4">{parseLocalDate(b.bill_date).toLocaleDateString()}</td>
                 <td className="px-5 py-4 font-medium">{fmt$(b.amount)}</td>
                 <td className="px-5 py-4">{b.usage_value != null ? `${b.usage_value} ${b.usage_unit || ''}` : '—'}</td>
@@ -197,9 +197,9 @@ export default function UtilityDetailPage() {
                   {billFiles[b.id] ? (
                     <span className="flex items-center gap-2">
                       <a href={api.getFileUrl(billFiles[b.id].id)} target="_blank" rel="noreferrer"
-                        className="text-neon-400 hover:text-neon-300 text-xs font-medium transition-colors">{billFiles[b.id].filename}</a>
+                        className="text-accent-700 hover:text-accent-900 text-xs font-medium transition-colors">{billFiles[b.id].filename}</a>
                       <button onClick={() => handleFileDelete(b.id, billFiles[b.id].id)}
-                        className="text-red-400 hover:text-red-300 text-xs font-medium">x</button>
+                        className="text-red-500 hover:text-red-700 text-xs font-medium">x</button>
                     </span>
                   ) : (
                     <>
@@ -207,19 +207,19 @@ export default function UtilityDetailPage() {
                         onChange={e => { if (e.target.files?.[0]) handleFileUpload(b.id, e.target.files[0]); }}
                         className="hidden" />
                       <button onClick={() => fileInputRefs.current[b.id]?.click()}
-                        className="text-cyber-400 hover:text-cyber-300 text-xs font-medium">Upload</button>
+                        className="text-accent-700 hover:text-accent-900 text-xs font-medium">Upload</button>
                     </>
                   )}
                 </td>
                 <td className="px-5 py-4 text-right space-x-2">
-                  <button onClick={() => startEditBill(b)} className="text-cyber-400 hover:text-cyber-300 text-xs font-medium">Edit</button>
-                  <button onClick={() => handleDeleteBill(b.id)} className="text-red-400 hover:text-red-300 text-xs font-medium">Delete</button>
+                  <button onClick={() => startEditBill(b)} className="text-accent-700 hover:text-accent-900 text-xs font-medium">Edit</button>
+                  <button onClick={() => handleDeleteBill(b.id)} className="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {bills.length === 0 && <p className="text-holo-600 text-sm italic p-8 text-center">No bills recorded.</p>}
+        {bills.length === 0 && <p className="text-warm-400 text-sm italic p-8 text-center">No bills recorded.</p>}
       </div>
     </div>
   );

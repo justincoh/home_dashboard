@@ -14,10 +14,10 @@ export default function Layout() {
   const location = useLocation();
   return (
     <div className="min-h-screen">
-      <nav className="bg-void-800">
+      <nav className="bg-warm-900 border-b-2 border-accent-600">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center h-16 gap-8">
-            <Link to="/" className="font-heading text-xl text-holo-50 tracking-wider">Home Dashboard</Link>
+            <Link to="/" className="font-heading text-xl text-warm-50 tracking-wide">Home Dashboard</Link>
             <div className="flex gap-1">
               {navItems.map(item => (
                 <Link
@@ -25,8 +25,8 @@ export default function Layout() {
                   to={item.path}
                   className={`px-3 py-2 rounded-md text-sm font-medium ${
                     location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))
-                      ? 'bg-void-600 text-neon-400'
-                      : 'text-holo-500 hover:text-holo-100'
+                      ? 'bg-warm-800 text-accent-400'
+                      : 'text-warm-400 hover:text-warm-100'
                   }`}
                 >
                   {item.label}
@@ -36,7 +36,6 @@ export default function Layout() {
           </div>
         </div>
       </nav>
-      <div className="nav-gradient-line" />
       <main className="max-w-7xl mx-auto px-4 py-8">
         <Outlet />
       </main>

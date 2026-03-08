@@ -1,137 +1,52 @@
 @import "tailwindcss";
 
 @theme {
-  --color-void-50: #2A2A55;
-  --color-void-100: #222245;
-  --color-void-200: #1E1E3F;
-  --color-void-300: #191938;
-  --color-void-400: #151530;
-  --color-void-500: #111128;
-  --color-void-600: #0E0E22;
-  --color-void-700: #0B0B1A;
-  --color-void-800: #08080F;
-  --color-void-900: #050508;
+  --color-warm-50: #FAFAF9;
+  --color-warm-100: #F5F5F4;
+  --color-warm-200: #E7E5E3;
+  --color-warm-300: #D6D3D1;
+  --color-warm-400: #A8A29E;
+  --color-warm-500: #78716C;
+  --color-warm-600: #57534E;
+  --color-warm-700: #44403C;
+  --color-warm-800: #292524;
+  --color-warm-900: #1C1917;
 
-  --color-neon-50: #FFF0F7;
-  --color-neon-100: #FFD6E8;
-  --color-neon-200: #FF9EC5;
-  --color-neon-300: #FF69A8;
-  --color-neon-400: #FF3D95;
-  --color-neon-500: #FF2D85;
-  --color-neon-600: #E01070;
-  --color-neon-700: #B8005A;
-  --color-neon-800: #8A0044;
-  --color-neon-900: #5C002E;
+  --color-accent-50: #FFFBEB;
+  --color-accent-100: #FEF3C7;
+  --color-accent-200: #FDE68A;
+  --color-accent-300: #FCD34D;
+  --color-accent-400: #FBBF24;
+  --color-accent-500: #F59E0B;
+  --color-accent-600: #D97706;
+  --color-accent-700: #B45309;
+  --color-accent-800: #92400E;
+  --color-accent-900: #78350F;
 
-  --color-cyber-50: #E0FFFF;
-  --color-cyber-100: #B0FFFF;
-  --color-cyber-200: #66FFFF;
-  --color-cyber-300: #00EFFF;
-  --color-cyber-400: #00D4FF;
-  --color-cyber-500: #00B8E0;
-  --color-cyber-600: #0090B0;
-  --color-cyber-700: #007088;
-  --color-cyber-800: #005060;
+  --color-sage-50: #F0FDF4;
+  --color-sage-100: #DCFCE7;
+  --color-sage-200: #BBF7D0;
+  --color-sage-600: #16A34A;
+  --color-sage-700: #15803D;
+  --color-sage-800: #166534;
 
-  --color-matrix-50: #E0FFE8;
-  --color-matrix-100: #B0FFB8;
-  --color-matrix-200: #66FF88;
-  --color-matrix-600: #00CC44;
-  --color-matrix-700: #00AA33;
-  --color-matrix-800: #008822;
-
-  --color-holo-50: #F5F0FF;
-  --color-holo-100: #E8E0FF;
-  --color-holo-200: #D0C4EE;
-  --color-holo-300: #B0A0D8;
-  --color-holo-400: #9B8FBF;
-  --color-holo-500: #7B6FA0;
-  --color-holo-600: #5B507A;
-
-  --font-sans: 'Exo 2', sans-serif;
-  --font-heading: 'Orbitron', sans-serif;
+  --font-sans: 'DM Sans', sans-serif;
+  --font-heading: 'DM Serif Display', serif;
 }
 
 body {
-  color: var(--color-holo-200);
-  background-color: var(--color-void-700);
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0, 0, 0, 0.015) 2px,
-      rgba(0, 0, 0, 0.015) 4px
-    ),
-    linear-gradient(180deg, #12102A 0%, #0B0B1A 100%);
+  background-color: var(--color-warm-50);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
 }
 
 a, button {
-  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: var(--color-neon-500) !important;
-  box-shadow: 0 0 0 2px rgba(255, 45, 133, 0.25), 0 0 12px rgba(255, 45, 133, 0.1);
-}
-
-select option {
-  background-color: var(--color-void-500);
-  color: var(--color-holo-100);
-}
-
-::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-}
-
-h1 {
-  text-shadow: 0 0 40px rgba(255, 45, 133, 0.12);
-}
-
-.nav-gradient-line {
-  height: 2px;
-  background: linear-gradient(90deg, #00D4FF, #FF2D85, #B44AFF, #00D4FF);
-  background-size: 200% 100%;
-  animation: gradientShift 6s ease infinite;
-}
-
-.glow-neon {
-  box-shadow: 0 0 12px rgba(255, 45, 133, 0.35);
-}
-.glow-neon:hover {
-  box-shadow: 0 0 20px rgba(255, 45, 133, 0.5);
-}
-.glow-cyber {
-  box-shadow: 0 0 12px rgba(0, 212, 255, 0.35);
-}
-.glow-cyber:hover {
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
-}
-.glow-matrix {
-  box-shadow: 0 0 12px rgba(0, 170, 51, 0.35);
-}
-.glow-matrix:hover {
-  box-shadow: 0 0 20px rgba(0, 170, 51, 0.5);
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-void-700);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-void-200);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-void-50);
-}
-
-@keyframes gradientShift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  border-color: var(--color-accent-500);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
 }
 
 @keyframes modalBackdropEnter {

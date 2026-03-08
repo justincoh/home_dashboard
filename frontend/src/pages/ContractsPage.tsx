@@ -70,9 +70,9 @@ export default function ContractsPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="font-heading text-2xl text-holo-50">Contracts & Warranties</h1>
+        <h1 className="font-heading text-2xl text-warm-900">Contracts & Warranties</h1>
         <button onClick={() => { resetForm(); setShowForm(true); }}
-          className="bg-neon-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-neon-500 text-sm glow-neon">
+          className="bg-accent-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-accent-600 text-sm">
           Add Contract
         </button>
       </div>
@@ -80,62 +80,62 @@ export default function ContractsPage() {
       <Modal open={showForm} onClose={resetForm} title={editId ? 'Edit Contract' : 'Add Contract'}>
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
           <input required placeholder="Name" value={form.name} onChange={e => setForm({...form, name: e.target.value})}
-            className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500 placeholder:text-holo-600" />
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
           <select value={form.type} onChange={e => setForm({...form, type: e.target.value as Contract['type']})}
-            className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500">
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50">
             <option value="contract">Contract</option>
             <option value="warranty">Warranty</option>
           </select>
           <select value={form.vendor_id} onChange={e => setForm({...form, vendor_id: e.target.value})}
-            className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500">
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50">
             <option value="">No Vendor</option>
             {vendors.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
           </select>
           <input placeholder="Cost" type="number" step="0.01" value={form.cost}
-            onChange={e => setForm({...form, cost: e.target.value})} className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500 placeholder:text-holo-600" />
+            onChange={e => setForm({...form, cost: e.target.value})} className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
           <input required type="date" value={form.start_date} onChange={e => setForm({...form, start_date: e.target.value})}
-            className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500" />
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50" />
           <input type="date" value={form.end_date} onChange={e => setForm({...form, end_date: e.target.value})}
-            className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500" />
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50" />
           <input placeholder="Payment Terms" value={form.payment_terms} onChange={e => setForm({...form, payment_terms: e.target.value})}
-            className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500 placeholder:text-holo-600" />
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
           <textarea placeholder="Notes" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})}
-            className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500 placeholder:text-holo-600" rows={2} />
-          <button type="submit" className="col-span-2 bg-cyber-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-cyber-500 text-sm glow-cyber">
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" rows={2} />
+          <button type="submit" className="col-span-2 bg-sage-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-sage-800 text-sm">
             {editId ? 'Update' : 'Create'}
           </button>
         </form>
       </Modal>
 
-      <div className="bg-void-400 rounded-xl border border-void-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-warm-200 overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-void-100">
+          <thead className="bg-warm-100">
             <tr>
-              <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">Name</th>
-              <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">Type</th>
-              <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">Vendor</th>
-              <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">End Date</th>
-              <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">Cost</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Name</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Type</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Vendor</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">End Date</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Cost</th>
               <th className="px-5 py-3.5"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-void-200">
+          <tbody className="divide-y divide-warm-100">
             {sorted.map(c => (
-              <tr key={c.id} className="hover:bg-void-50 transition-colors">
-                <td className="px-5 py-4"><Link to={`/contracts/${c.id}`} className="text-neon-400 hover:text-neon-300 font-medium transition-colors">{c.name}</Link></td>
+              <tr key={c.id} className="hover:bg-warm-50 transition-colors">
+                <td className="px-5 py-4"><Link to={`/contracts/${c.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{c.name}</Link></td>
                 <td className="px-5 py-4 capitalize">{c.type}</td>
-                <td className="px-5 py-4">{c.vendor ? <Link to={`/vendors/${c.vendor.id}`} className="text-neon-400 hover:text-neon-300 font-medium transition-colors">{c.vendor.name}</Link> : '—'}</td>
+                <td className="px-5 py-4">{c.vendor ? <Link to={`/vendors/${c.vendor.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{c.vendor.name}</Link> : '—'}</td>
                 <td className="px-5 py-4">{c.end_date ? parseLocalDate(c.end_date).toLocaleDateString() : '—'}</td>
                 <td className="px-5 py-4">{c.cost ? fmt$(c.cost) : '—'}</td>
                 <td className="px-5 py-4 text-right space-x-2">
-                  <button onClick={() => startEdit(c)} className="text-cyber-400 hover:text-cyber-300 text-xs font-medium">Edit</button>
-                  <button onClick={() => handleDelete(c.id)} className="text-red-400 hover:text-red-300 text-xs font-medium">Delete</button>
+                  <button onClick={() => startEdit(c)} className="text-accent-700 hover:text-accent-900 text-xs font-medium">Edit</button>
+                  <button onClick={() => handleDelete(c.id)} className="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {contracts.length === 0 && <p className="text-holo-600 text-sm italic p-8 text-center">No contracts found.</p>}
+        {contracts.length === 0 && <p className="text-warm-400 text-sm italic p-8 text-center">No contracts found.</p>}
       </div>
     </div>
   );

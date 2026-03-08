@@ -48,9 +48,9 @@ export default function VendorsPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="font-heading text-2xl text-holo-50">Vendors</h1>
+        <h1 className="font-heading text-2xl text-warm-900">Vendors</h1>
         <button onClick={() => { setShowForm(true); setEditId(null); setForm({ name: '', phone: '', email: '', service_type: '' }); }}
-          className="bg-neon-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-neon-500 text-sm glow-neon">
+          className="bg-accent-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-accent-600 text-sm">
           Add Vendor
         </button>
       </div>
@@ -58,49 +58,49 @@ export default function VendorsPage() {
       <Modal open={showForm} onClose={() => { setShowForm(false); setEditId(null); }} title={editId ? 'Edit Vendor' : 'Add Vendor'}>
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
           <input required placeholder="Name" value={form.name} onChange={e => setForm({...form, name: e.target.value})}
-            className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500 placeholder:text-holo-600" />
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
           <input placeholder="Service Type" required value={form.service_type} onChange={e => setForm({...form, service_type: e.target.value})}
-            className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500 placeholder:text-holo-600" />
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
           <input placeholder="Phone" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})}
-            className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500 placeholder:text-holo-600" />
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
           <input placeholder="Email" type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})}
-            className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500 placeholder:text-holo-600" />
-          <button type="submit" className="col-span-2 bg-cyber-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-cyber-500 text-sm glow-cyber">
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
+          <button type="submit" className="col-span-2 bg-sage-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-sage-800 text-sm">
             {editId ? 'Update' : 'Create'}
           </button>
         </form>
       </Modal>
 
       <input placeholder="Search vendors..." value={search} onChange={e => setSearch(e.target.value)}
-        className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500 placeholder:text-holo-600 mb-4 w-full" />
+        className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400 mb-4 w-full" />
 
-      <div className="bg-void-400 rounded-xl border border-void-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-warm-200 overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-void-100">
+          <thead className="bg-warm-100">
             <tr>
-              <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">Name</th>
-              <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">Service Type</th>
-              <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">Phone</th>
-              <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">Email</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Name</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Service Type</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Phone</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Email</th>
               <th className="px-5 py-3.5"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-void-200">
+          <tbody className="divide-y divide-warm-100">
             {filtered.map(v => (
-              <tr key={v.id} className="hover:bg-void-50 transition-colors">
-                <td className="px-5 py-4"><Link to={`/vendors/${v.id}`} className="text-neon-400 hover:text-neon-300 font-medium transition-colors">{v.name}</Link></td>
+              <tr key={v.id} className="hover:bg-warm-50 transition-colors">
+                <td className="px-5 py-4"><Link to={`/vendors/${v.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{v.name}</Link></td>
                 <td className="px-5 py-4">{v.service_type}</td>
                 <td className="px-5 py-4">{v.phone || '—'}</td>
                 <td className="px-5 py-4">{v.email || '—'}</td>
                 <td className="px-5 py-4 text-right space-x-2">
-                  <button onClick={() => startEdit(v)} className="text-cyber-400 hover:text-cyber-300 text-xs font-medium">Edit</button>
-                  <button onClick={() => handleDelete(v.id)} className="text-red-400 hover:text-red-300 text-xs font-medium">Delete</button>
+                  <button onClick={() => startEdit(v)} className="text-accent-700 hover:text-accent-900 text-xs font-medium">Edit</button>
+                  <button onClick={() => handleDelete(v.id)} className="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {filtered.length === 0 && <p className="text-holo-600 text-sm italic p-8 text-center">No vendors found.</p>}
+        {filtered.length === 0 && <p className="text-warm-400 text-sm italic p-8 text-center">No vendors found.</p>}
       </div>
     </div>
   );
