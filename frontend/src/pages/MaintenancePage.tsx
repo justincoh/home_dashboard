@@ -78,9 +78,9 @@ export default function MaintenancePage() {
   const urgencyColor = (nextDue: string | null) => {
     if (!nextDue) return '';
     const days = Math.ceil((parseLocalDate(nextDue).getTime() - Date.now()) / 86400000);
-    if (days < 0) return 'bg-red-50 border-l-4 border-red-500';
-    if (days < 7) return 'bg-orange-50 border-l-4 border-orange-500';
-    if (days < 30) return 'bg-yellow-50 border-l-4 border-accent-500';
+    if (days < 0) return 'bg-red-900/30 border-l-4 border-red-500';
+    if (days < 7) return 'bg-orange-900/30 border-l-4 border-orange-500';
+    if (days < 30) return 'bg-yellow-900/20 border-l-4 border-neon-500';
     return '';
   };
 
@@ -89,9 +89,9 @@ export default function MaintenancePage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="font-heading text-2xl text-warm-900">Maintenance</h1>
+        <h1 className="font-heading text-2xl text-holo-50">Maintenance</h1>
         <button onClick={() => { resetForm(); setShowForm(true); }}
-          className="bg-accent-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-accent-600 text-sm">
+          className="bg-neon-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-neon-500 text-sm glow-neon">
           Add Task
         </button>
       </div>
@@ -99,31 +99,31 @@ export default function MaintenancePage() {
       <Modal open={showForm} onClose={resetForm} title={editId ? 'Edit Task' : 'Add Task'}>
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
           <input required placeholder="Task Name" value={form.name} onChange={e => setForm({...form, name: e.target.value})}
-            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400 col-span-2" />
+            className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500 placeholder:text-holo-600 col-span-2" />
           <div className="col-span-2">
             <div className="flex items-center gap-3">
               <input required placeholder="e.g. 2w, 3m, 1y" value={form.frequency}
                 onChange={e => setForm({...form, frequency: e.target.value})}
-                className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400 flex-1" />
+                className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500 placeholder:text-holo-600 flex-1" />
               {form.frequency && (
-                <span className={`text-sm ${freqPreview ? 'text-sage-600' : 'text-red-500'}`}>
+                <span className={`text-sm ${freqPreview ? 'text-matrix-600' : 'text-red-400'}`}>
                   {freqPreview ? `Every ${freqPreview}` : 'Invalid format'}
                 </span>
               )}
             </div>
-            <p className="text-xs text-warm-400 mt-1">d = days, w = weeks, m = months, y = years</p>
+            <p className="text-xs text-holo-600 mt-1">d = days, w = weeks, m = months, y = years</p>
           </div>
           <div>
-            <label className="block text-xs text-warm-500 mb-1">Last Completed</label>
+            <label className="block text-xs text-holo-500 mb-1">Last Completed</label>
             <input type="date" value={form.last_completed} onChange={e => setForm({...form, last_completed: e.target.value})}
-              className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 w-full" />
+              className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500 w-full" />
           </div>
           <div>
-            <label className="block text-xs text-warm-500 mb-1">Next Due</label>
+            <label className="block text-xs text-holo-500 mb-1">Next Due</label>
             <input type="date" value={form.next_due} onChange={e => setForm({...form, next_due: e.target.value})}
-              className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 w-full" />
+              className="border border-void-200 rounded-lg px-3.5 py-2.5 text-sm text-holo-100 bg-void-500 w-full" />
           </div>
-          <button type="submit" disabled={!freqPreview} className="col-span-2 bg-sage-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-sage-800 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+          <button type="submit" disabled={!freqPreview} className="col-span-2 bg-cyber-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-cyber-500 text-sm glow-cyber disabled:opacity-50 disabled:cursor-not-allowed">
             {editId ? 'Update' : 'Create'}
           </button>
         </form>
@@ -131,25 +131,25 @@ export default function MaintenancePage() {
 
       <div className="space-y-2">
         {tasks.map(t => (
-          <div key={t.id} className={`bg-white rounded-xl border border-warm-200 p-4 flex items-center justify-between ${urgencyColor(t.next_due)}`}>
+          <div key={t.id} className={`bg-void-400 rounded-xl border border-void-200 p-4 flex items-center justify-between ${urgencyColor(t.next_due)}`}>
             <div>
-              <Link to={`/maintenance/${t.id}`} className="font-medium text-accent-800 hover:text-accent-600 transition-colors">{t.name}</Link>
-              <div className="text-xs text-warm-400 mt-1">
+              <Link to={`/maintenance/${t.id}`} className="font-medium text-neon-400 hover:text-neon-300 transition-colors">{t.name}</Link>
+              <div className="text-xs text-holo-500 mt-1">
                 Every {formatFrequency(t.frequency) || t.frequency} &middot;
                 Due: {t.next_due ? parseLocalDate(t.next_due).toLocaleDateString() : 'Not set'} &middot;
                 Last: {t.last_completed ? parseLocalDate(t.last_completed).toLocaleDateString() : 'Never'}
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => handleComplete(t.id)} className="bg-sage-700 text-white px-3 py-1 rounded-lg text-xs hover:bg-sage-800">
+              <button onClick={() => handleComplete(t.id)} className="bg-matrix-700 text-white px-3 py-1 rounded-lg text-xs hover:bg-matrix-600 glow-matrix">
                 Mark Complete
               </button>
-              <button onClick={() => startEdit(t)} className="text-accent-700 hover:text-accent-900 text-xs font-medium">Edit</button>
-              <button onClick={() => handleDelete(t.id)} className="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
+              <button onClick={() => startEdit(t)} className="text-cyber-400 hover:text-cyber-300 text-xs font-medium">Edit</button>
+              <button onClick={() => handleDelete(t.id)} className="text-red-400 hover:text-red-300 text-xs font-medium">Delete</button>
             </div>
           </div>
         ))}
-        {tasks.length === 0 && <p className="text-warm-400 text-sm italic p-8 text-center">No maintenance tasks.</p>}
+        {tasks.length === 0 && <p className="text-holo-600 text-sm italic p-8 text-center">No maintenance tasks.</p>}
       </div>
     </div>
   );

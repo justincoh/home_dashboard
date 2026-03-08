@@ -17,62 +17,62 @@ export default function ProjectDetailPage() {
     api.listQuotes({ project_id: pid }).then(setQuotes);
   }, [id]);
 
-  if (!project) return <p className="text-warm-400 font-medium animate-pulse">Loading...</p>;
+  if (!project) return <p className="text-holo-500 font-medium animate-pulse">Loading...</p>;
 
   const statusColors: Record<string, string> = {
-    planned: 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-200 rounded-full',
-    in_progress: 'bg-accent-50 text-accent-800 ring-1 ring-inset ring-accent-200 rounded-full',
-    done: 'bg-sage-50 text-sage-800 ring-1 ring-inset ring-sage-200 rounded-full',
+    planned: 'bg-cyber-800/30 text-cyber-300 ring-1 ring-inset ring-cyber-700 rounded-full',
+    in_progress: 'bg-neon-900/30 text-neon-300 ring-1 ring-inset ring-neon-700 rounded-full',
+    done: 'bg-matrix-800/30 text-matrix-200 ring-1 ring-inset ring-matrix-700 rounded-full',
   };
 
   return (
     <div>
-      <Link to="/projects" className="text-warm-500 hover:text-warm-700 text-sm font-medium transition-colors">&larr; Back to Projects</Link>
-      <h1 className="font-heading text-2xl text-warm-900 mt-2 mb-4">{project.name}</h1>
-      <div className="bg-white rounded-xl border border-warm-200 p-6 mb-8">
+      <Link to="/projects" className="text-holo-500 hover:text-neon-400 text-sm font-medium transition-colors">&larr; Back to Projects</Link>
+      <h1 className="font-heading text-2xl text-holo-50 mt-2 mb-4">{project.name}</h1>
+      <div className="bg-void-400 rounded-xl border border-void-200 p-6 mb-8">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Status</div>
+            <div className="text-holo-500 text-xs font-semibold uppercase tracking-wider mb-1">Status</div>
             <span className={`px-2 py-0.5 text-xs font-medium ${statusColors[project.status]}`}>
               {project.status.replace('_', ' ')}
             </span>
           </div>
           <div>
-            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Budget</div>
+            <div className="text-holo-500 text-xs font-semibold uppercase tracking-wider mb-1">Budget</div>
             <div>{project.budget ? fmt$(project.budget) : '—'}</div>
           </div>
           <div>
-            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Actual Cost</div>
+            <div className="text-holo-500 text-xs font-semibold uppercase tracking-wider mb-1">Actual Cost</div>
             <div>{project.actual_cost ? fmt$(project.actual_cost) : '—'}</div>
           </div>
           <div>
-            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Start Date</div>
+            <div className="text-holo-500 text-xs font-semibold uppercase tracking-wider mb-1">Start Date</div>
             <div>{project.start_date ? parseLocalDate(project.start_date).toLocaleDateString() : '—'}</div>
           </div>
           <div>
-            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">End Date</div>
+            <div className="text-holo-500 text-xs font-semibold uppercase tracking-wider mb-1">End Date</div>
             <div>{project.end_date ? parseLocalDate(project.end_date).toLocaleDateString() : '—'}</div>
           </div>
         </div>
-        {project.description && <p className="text-warm-600 leading-relaxed border-t border-warm-100 pt-4 mt-4">{project.description}</p>}
+        {project.description && <p className="text-holo-300 leading-relaxed border-t border-void-200 pt-4 mt-4">{project.description}</p>}
       </div>
 
-      <h2 className="font-heading text-lg text-warm-800 mb-2">Quotes</h2>
-      {quotes.length === 0 ? <p className="text-warm-400 text-sm italic mb-6">No quotes for this project.</p> : (
-        <div className="bg-white rounded-xl border border-warm-200 overflow-hidden mb-8">
+      <h2 className="font-heading text-lg text-holo-100 mb-2">Quotes</h2>
+      {quotes.length === 0 ? <p className="text-holo-600 text-sm italic mb-6">No quotes for this project.</p> : (
+        <div className="bg-void-400 rounded-xl border border-void-200 overflow-hidden mb-8">
           <table className="w-full text-sm">
-            <thead className="bg-warm-100">
+            <thead className="bg-void-100">
               <tr>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Amount</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Vendor</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Date</th>
+                <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">Amount</th>
+                <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">Vendor</th>
+                <th className="text-left px-5 py-3.5 text-xs font-semibold text-holo-500 uppercase tracking-wider">Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-warm-100">
+            <tbody className="divide-y divide-void-200">
               {quotes.map(q => (
-                <tr key={q.id} className="hover:bg-warm-50 transition-colors">
-                  <td className="px-5 py-4"><Link to={`/quotes/${q.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{fmt$(q.amount)}</Link></td>
-                  <td className="px-5 py-4">{q.vendor ? <Link to={`/vendors/${q.vendor.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{q.vendor.name}</Link> : '—'}</td>
+                <tr key={q.id} className="hover:bg-void-50 transition-colors">
+                  <td className="px-5 py-4"><Link to={`/quotes/${q.id}`} className="text-neon-400 hover:text-neon-300 font-medium transition-colors">{fmt$(q.amount)}</Link></td>
+                  <td className="px-5 py-4">{q.vendor ? <Link to={`/vendors/${q.vendor.id}`} className="text-neon-400 hover:text-neon-300 font-medium transition-colors">{q.vendor.name}</Link> : '—'}</td>
                   <td className="px-5 py-4">{parseLocalDate(q.date_received).toLocaleDateString()}</td>
                 </tr>
               ))}
