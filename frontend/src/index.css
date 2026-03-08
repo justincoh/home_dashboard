@@ -1,1 +1,66 @@
 @import "tailwindcss";
+
+@theme {
+  --color-warm-50: #FAFAF9;
+  --color-warm-100: #F5F5F4;
+  --color-warm-200: #E7E5E3;
+  --color-warm-300: #D6D3D1;
+  --color-warm-400: #A8A29E;
+  --color-warm-500: #78716C;
+  --color-warm-600: #57534E;
+  --color-warm-700: #44403C;
+  --color-warm-800: #292524;
+  --color-warm-900: #1C1917;
+
+  --color-accent-50: #FFFBEB;
+  --color-accent-100: #FEF3C7;
+  --color-accent-200: #FDE68A;
+  --color-accent-300: #FCD34D;
+  --color-accent-400: #FBBF24;
+  --color-accent-500: #F59E0B;
+  --color-accent-600: #D97706;
+  --color-accent-700: #B45309;
+  --color-accent-800: #92400E;
+  --color-accent-900: #78350F;
+
+  --color-sage-50: #F0FDF4;
+  --color-sage-100: #DCFCE7;
+  --color-sage-200: #BBF7D0;
+  --color-sage-600: #16A34A;
+  --color-sage-700: #15803D;
+  --color-sage-800: #166534;
+
+  --font-sans: 'DM Sans', sans-serif;
+  --font-heading: 'DM Serif Display', serif;
+}
+
+body {
+  background-color: var(--color-warm-50);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+}
+
+a, button {
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--color-accent-500);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+@keyframes modalBackdropEnter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalContentEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

@@ -48,9 +48,9 @@ export default function VendorsPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Vendors</h1>
+        <h1 className="font-heading text-2xl text-warm-900">Vendors</h1>
         <button onClick={() => { setShowForm(true); setEditId(null); setForm({ name: '', phone: '', email: '', service_type: '' }); }}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
+          className="bg-accent-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-accent-600 text-sm">
           Add Vendor
         </button>
       </div>
@@ -58,49 +58,49 @@ export default function VendorsPage() {
       <Modal open={showForm} onClose={() => { setShowForm(false); setEditId(null); }} title={editId ? 'Edit Vendor' : 'Add Vendor'}>
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
           <input required placeholder="Name" value={form.name} onChange={e => setForm({...form, name: e.target.value})}
-            className="border rounded px-3 py-2 text-sm" />
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
           <input placeholder="Service Type" required value={form.service_type} onChange={e => setForm({...form, service_type: e.target.value})}
-            className="border rounded px-3 py-2 text-sm" />
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
           <input placeholder="Phone" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})}
-            className="border rounded px-3 py-2 text-sm" />
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
           <input placeholder="Email" type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})}
-            className="border rounded px-3 py-2 text-sm" />
-          <button type="submit" className="col-span-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm">
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
+          <button type="submit" className="col-span-2 bg-sage-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-sage-800 text-sm">
             {editId ? 'Update' : 'Create'}
           </button>
         </form>
       </Modal>
 
       <input placeholder="Search vendors..." value={search} onChange={e => setSearch(e.target.value)}
-        className="border rounded px-3 py-2 text-sm mb-4 w-full" />
+        className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400 mb-4 w-full" />
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white rounded-xl border border-warm-200 overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-warm-100">
             <tr>
-              <th className="text-left px-4 py-3 font-medium">Name</th>
-              <th className="text-left px-4 py-3 font-medium">Service Type</th>
-              <th className="text-left px-4 py-3 font-medium">Phone</th>
-              <th className="text-left px-4 py-3 font-medium">Email</th>
-              <th className="px-4 py-3"></th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Name</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Service Type</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Phone</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Email</th>
+              <th className="px-5 py-3.5"></th>
             </tr>
           </thead>
-          <tbody className="divide-y">
+          <tbody className="divide-y divide-warm-100">
             {filtered.map(v => (
-              <tr key={v.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3"><Link to={`/vendors/${v.id}`} className="text-blue-600 hover:underline">{v.name}</Link></td>
-                <td className="px-4 py-3">{v.service_type}</td>
-                <td className="px-4 py-3">{v.phone || '—'}</td>
-                <td className="px-4 py-3">{v.email || '—'}</td>
-                <td className="px-4 py-3 text-right space-x-2">
-                  <button onClick={() => startEdit(v)} className="text-blue-600 hover:underline text-xs">Edit</button>
-                  <button onClick={() => handleDelete(v.id)} className="text-red-600 hover:underline text-xs">Delete</button>
+              <tr key={v.id} className="hover:bg-warm-50 transition-colors">
+                <td className="px-5 py-4"><Link to={`/vendors/${v.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{v.name}</Link></td>
+                <td className="px-5 py-4">{v.service_type}</td>
+                <td className="px-5 py-4">{v.phone || '—'}</td>
+                <td className="px-5 py-4">{v.email || '—'}</td>
+                <td className="px-5 py-4 text-right space-x-2">
+                  <button onClick={() => startEdit(v)} className="text-accent-700 hover:text-accent-900 text-xs font-medium">Edit</button>
+                  <button onClick={() => handleDelete(v.id)} className="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {filtered.length === 0 && <p className="text-gray-500 text-sm p-4">No vendors found.</p>}
+        {filtered.length === 0 && <p className="text-warm-400 text-sm italic p-8 text-center">No vendors found.</p>}
       </div>
     </div>
   );

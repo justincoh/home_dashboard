@@ -31,19 +31,19 @@ export default function FileAttachments({ entityType, entityId }: Props) {
 
   return (
     <div className="mt-6">
-      <h3 className="text-lg font-semibold mb-2">Attachments</h3>
+      <h3 className="font-heading text-lg text-warm-800 mb-2">Attachments</h3>
       <input ref={fileInput} type="file" onChange={handleUpload} className="mb-3 text-sm" />
       {files.length === 0 ? (
-        <p className="text-gray-500 text-sm">No files attached.</p>
+        <p className="text-warm-400 text-sm italic">No files attached.</p>
       ) : (
         <ul className="space-y-1">
           {files.map(f => (
             <li key={f.id} className="flex items-center gap-3 text-sm">
-              <a href={api.getFileUrl(f.id)} className="text-blue-600 hover:underline" target="_blank" rel="noreferrer">
+              <a href={api.getFileUrl(f.id)} className="text-accent-700 hover:text-accent-900 font-medium transition-colors" target="_blank" rel="noreferrer">
                 {f.filename}
               </a>
-              <span className="text-gray-400">{new Date(f.uploaded_at).toLocaleDateString()}</span>
-              <button onClick={() => handleDelete(f.id)} className="text-red-500 hover:text-red-700 text-xs">Delete</button>
+              <span className="text-warm-400">{new Date(f.uploaded_at).toLocaleDateString()}</span>
+              <button onClick={() => handleDelete(f.id)} className="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
             </li>
           ))}
         </ul>

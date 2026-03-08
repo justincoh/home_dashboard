@@ -45,48 +45,57 @@ export default function MaintenanceDetailPage() {
     navigate('/maintenance');
   };
 
-  if (!task) return <p className="text-gray-500">Loading...</p>;
+  if (!task) return <p className="text-warm-400 font-medium animate-pulse">Loading...</p>;
 
   return (
     <div>
-      <Link to="/maintenance" className="text-blue-600 hover:underline text-sm">&larr; Back to Maintenance</Link>
-      <h1 className="text-2xl font-bold mt-2 mb-4">{task.name}</h1>
+      <Link to="/maintenance" className="text-warm-500 hover:text-warm-700 text-sm font-medium transition-colors">&larr; Back to Maintenance</Link>
+      <h1 className="font-heading text-2xl text-warm-900 mt-2 mb-4">{task.name}</h1>
 
-      <div className="bg-white rounded-lg shadow p-5 mb-6">
+      <div className="bg-white rounded-xl border border-warm-200 p-6 mb-8">
         <div className="grid grid-cols-2 gap-4 text-sm">
-          <div><span className="font-medium">Frequency:</span> Every {formatFrequency(task.frequency) || task.frequency}</div>
-          <div><span className="font-medium">Next Due:</span> {task.next_due ? parseLocalDate(task.next_due).toLocaleDateString() : 'Not set'}</div>
-          <div><span className="font-medium">Last Completed:</span> {task.last_completed ? parseLocalDate(task.last_completed).toLocaleDateString() : 'Never'}</div>
+          <div>
+            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Frequency</div>
+            <div>Every {formatFrequency(task.frequency) || task.frequency}</div>
+          </div>
+          <div>
+            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Next Due</div>
+            <div>{task.next_due ? parseLocalDate(task.next_due).toLocaleDateString() : 'Not set'}</div>
+          </div>
+          <div>
+            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Last Completed</div>
+            <div>{task.last_completed ? parseLocalDate(task.last_completed).toLocaleDateString() : 'Never'}</div>
+          </div>
         </div>
         <div className="flex gap-2 mt-4">
           <button onClick={handleComplete}
-            className="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700">
+            className="bg-sage-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-sage-800 shadow-sm">
             Mark Complete
           </button>
           <button onClick={handleDelete}
-            className="bg-red-600 text-white px-4 py-2 rounded text-sm hover:bg-red-700">
+            className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 shadow-sm">
             Delete
           </button>
         </div>
       </div>
 
-      <h2 className="text-lg font-semibold mb-2">Completion Log</h2>
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <h2 className="font-heading text-lg text-warm-800 mb-2">Completion Log</h2>
+      <div className="bg-white rounded-xl border border-warm-200 overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-warm-100">
             <tr>
-              <th className="text-left px-4 py-3 font-medium">Date</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Date</th>
             </tr>
           </thead>
-          <tbody className="divide-y">
+          <tbody className="divide-y divide-warm-100">
             {logs.map(log => (
-              <tr key={log.id}>
-                <td className="px-4 py-3">{parseLocalDate(log.completed_at).toLocaleDateString()}</td>
+              <tr key={log.id} className="hover:bg-warm-50 transition-colors">
+                <td className="px-5 py-4">{parseLocalDate(log.completed_at).toLocaleDateString()}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        {logs.length === 0 && <p className="text-gray-500 text-sm p-4">No completions recorded.</p>}
+        {logs.length === 0 && <p className="text-warm-400 text-sm italic p-8 text-center">No completions recorded.</p>}
       </div>
     </div>
   );
