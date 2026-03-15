@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from models import MaintenanceTask, MaintenanceLog
-from schemas import MaintenanceCreate, MaintenanceUpdate, MaintenanceOut, MaintenanceLogOut
+from schemas import MaintenanceCreate, MaintenanceUpdate, MaintenanceOut, MaintenanceLogOut, MaintenanceCompleteBody
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
@@ -76,7 +76,7 @@ def delete_task(task_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/{task_id}/complete", response_model=MaintenanceOut)
-def complete_task(task_id: int, db: Session = Depends(get_db)):
+def complete_task(task_id: int, body: MaintenanceCompleteBody = None, db: Session = Depends(get_db)):
     db_task = db.query(MaintenanceTask).filter(MaintenanceTask.id == task_id).first()
     if not db_task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -85,7 +85,7 @@ def complete_task(task_id: int, db: Session = Depends(get_db)):
     delta = parse_frequency(db_task.frequency)
     if delta:
         db_task.next_due = today + delta
-    log = MaintenanceLog(task_id=task_id, completed_at=today)
+    log = MaintenanceLog(task_id=task_id, completed_at=today, cost=body.cost if body else None)
     db.add(log)
     db.commit()
     db.refresh(db_task)

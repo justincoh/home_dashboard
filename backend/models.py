@@ -87,6 +87,7 @@ class MaintenanceLog(Base):
     id = Column(Integer, primary_key=True, index=True)
     task_id = Column(Integer, ForeignKey("maintenance_tasks.id"), nullable=False)
     completed_at = Column(Date, nullable=False)
+    cost = Column(Numeric(10, 2), nullable=True)
 
     task = relationship("MaintenanceTask", back_populates="logs")
 

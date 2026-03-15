@@ -43,6 +43,7 @@ Manual startup:
 - **Maintenance frequency**: Free-text interval format (e.g. `3d`, `2w`, `6m`, `1y`) — not an enum. Parsed by regex in `backend/routers/maintenance.py`
 - **Backend routers**: All follow the same pattern — list, get, create, update, delete. Status 201 for creates, 204 for deletes
 - **Cascade deletes**: `Utility` → `UtilityBill` via SQLAlchemy relationship cascade
+- **Maintenance costs**: `MaintenanceLog` has an optional `cost` field (Numeric(10,2)). Maintenance costs with non-null cost are included in the annual expense report and grand total.
 
 ## Database
 

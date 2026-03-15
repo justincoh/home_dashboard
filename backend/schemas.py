@@ -20,6 +20,13 @@ class UtilityExpenseBreakdown(BaseModel):
     total: float
 
 
+class MaintenanceExpenseItem(BaseModel):
+    task_id: int
+    task_name: str
+    completed_at: date
+    cost: float
+
+
 class AnnualReport(BaseModel):
     year: int
     utilities_total: float
@@ -28,6 +35,8 @@ class AnnualReport(BaseModel):
     projects: list["ProjectOut"]
     contracts_total: float
     contracts: list["ContractOut"]
+    maintenance_total: float
+    maintenance_items: list[MaintenanceExpenseItem]
     grand_total: float
 
 
@@ -141,7 +150,12 @@ class MaintenanceLogOut(BaseModel):
     id: int
     task_id: int
     completed_at: date
+    cost: Optional[float] = None
     model_config = {"from_attributes": True}
+
+
+class MaintenanceCompleteBody(BaseModel):
+    cost: Optional[float] = None
 
 
 # --- Utility ---

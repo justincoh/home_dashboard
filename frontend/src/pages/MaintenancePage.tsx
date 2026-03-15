@@ -28,6 +28,8 @@ export default function MaintenancePage() {
     name: '', frequency: '',
     last_completed: '', next_due: '',
   });
+  const [completeId, setCompleteId] = useState<number | null>(null);
+  const [completeCost, setCompleteCost] = useState('');
 
   const load = () => api.listMaintenance().then(setTasks);
   useEffect(() => { load(); }, []);
@@ -64,8 +66,13 @@ export default function MaintenancePage() {
     setShowForm(true);
   };
 
-  const handleComplete = async (id: number) => {
-    await api.completeMaintenance(id);
+  const handleComplete = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!completeId) return;
+    const cost = completeCost ? parseFloat(completeCost) : undefined;
+    await api.completeMaintenance(completeId, cost);
+    setCompleteId(null);
+    setCompleteCost('');
     load();
   };
 
@@ -129,6 +136,20 @@ export default function MaintenancePage() {
         </form>
       </Modal>
 
+      <Modal open={completeId !== null} onClose={() => { setCompleteId(null); setCompleteCost(''); }} title="Complete Task">
+        <form onSubmit={handleComplete} className="space-y-3">
+          <div>
+            <label className="block text-xs text-warm-500 mb-1">Cost (optional)</label>
+            <input type="number" step="0.01" min="0" placeholder="0.00" value={completeCost}
+              onChange={e => setCompleteCost(e.target.value)}
+              className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400 w-full" />
+          </div>
+          <button type="submit" className="w-full bg-sage-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-sage-800 text-sm">
+            Complete Task
+          </button>
+        </form>
+      </Modal>
+
       <div className="space-y-2">
         {tasks.map(t => (
           <div key={t.id} className={`bg-white rounded-xl border border-warm-200 p-4 flex items-center justify-between ${urgencyColor(t.next_due)}`}>
@@ -141,7 +162,7 @@ export default function MaintenancePage() {
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => handleComplete(t.id)} className="bg-sage-700 text-white px-3 py-1 rounded-lg text-xs hover:bg-sage-800">
+              <button onClick={() => setCompleteId(t.id)} className="bg-sage-700 text-white px-3 py-1 rounded-lg text-xs hover:bg-sage-800">
                 Mark Complete
               </button>
               <button onClick={() => startEdit(t)} className="text-accent-700 hover:text-accent-900 text-xs font-medium">Edit</button>

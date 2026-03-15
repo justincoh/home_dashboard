@@ -3,10 +3,18 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import inspect, text
 from database import engine, Base
 from routers import projects, maintenance, utilities, contracts, vendors, quotes, files, dashboard, reports, search
 
 Base.metadata.create_all(bind=engine)
+
+# Migrations
+inspector = inspect(engine)
+maintenance_log_cols = [c["name"] for c in inspector.get_columns("maintenance_log")]
+if "cost" not in maintenance_log_cols:
+    with engine.begin() as conn:
+        conn.execute(text("ALTER TABLE maintenance_log ADD COLUMN cost NUMERIC(10, 2)"))
 
 app = FastAPI(title="House Dashboard API")
 

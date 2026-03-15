@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, extract
 from database import get_db
-from models import UtilityBill, Utility, Project, Contract
-from schemas import AnnualReport, UtilityExpenseBreakdown
+from models import UtilityBill, Utility, Project, Contract, MaintenanceLog, MaintenanceTask
+from schemas import AnnualReport, UtilityExpenseBreakdown, MaintenanceExpenseItem
 from datetime import date
 
 router = APIRouter()
@@ -58,6 +58,26 @@ def get_annual_report(year: int = Query(default_factory=lambda: date.today().yea
     )
     contracts_total = float(sum(float(c.cost) for c in contracts))
 
+    maint_rows = (
+        db.query(MaintenanceLog, MaintenanceTask.name)
+        .join(MaintenanceTask, MaintenanceLog.task_id == MaintenanceTask.id)
+        .filter(
+            MaintenanceLog.cost.isnot(None),
+            extract("year", MaintenanceLog.completed_at) == year,
+        )
+        .all()
+    )
+    maintenance_items = [
+        MaintenanceExpenseItem(
+            task_id=log.task_id,
+            task_name=task_name,
+            completed_at=log.completed_at,
+            cost=float(log.cost),
+        )
+        for log, task_name in maint_rows
+    ]
+    maintenance_total = sum(item.cost for item in maintenance_items)
+
     return AnnualReport(
         year=year,
         utilities_total=utilities_total,
@@ -66,5 +86,7 @@ def get_annual_report(year: int = Query(default_factory=lambda: date.today().yea
         projects=projects,
         contracts_total=contracts_total,
         contracts=contracts,
-        grand_total=utilities_total + projects_total + contracts_total,
+        maintenance_total=maintenance_total,
+        maintenance_items=maintenance_items,
+        grand_total=utilities_total + projects_total + contracts_total + maintenance_total,
     )

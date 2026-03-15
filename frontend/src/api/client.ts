@@ -72,6 +72,7 @@ export interface MaintenanceLog {
   id: number;
   task_id: number;
   completed_at: string;
+  cost: number | null;
 }
 
 export interface Utility {
@@ -118,6 +119,13 @@ export interface UtilityExpenseBreakdown {
   total: number;
 }
 
+export interface MaintenanceExpenseItem {
+  task_id: number;
+  task_name: string;
+  completed_at: string;
+  cost: number;
+}
+
 export interface AnnualReport {
   year: number;
   utilities_total: number;
@@ -126,6 +134,8 @@ export interface AnnualReport {
   projects: Project[];
   contracts_total: number;
   contracts: Contract[];
+  maintenance_total: number;
+  maintenance_items: MaintenanceExpenseItem[];
   grand_total: number;
 }
 
@@ -181,7 +191,7 @@ export const api = {
   createMaintenance: (data: Omit<MaintenanceTask, 'id'>) => request<MaintenanceTask>('/maintenance', { method: 'POST', body: JSON.stringify(data) }),
   updateMaintenance: (id: number, data: Omit<MaintenanceTask, 'id'>) => request<MaintenanceTask>(`/maintenance/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteMaintenance: (id: number) => request<void>(`/maintenance/${id}`, { method: 'DELETE' }),
-  completeMaintenance: (id: number) => request<MaintenanceTask>(`/maintenance/${id}/complete`, { method: 'POST' }),
+  completeMaintenance: (id: number, cost?: number) => request<MaintenanceTask>(`/maintenance/${id}/complete`, { method: 'POST', body: JSON.stringify(cost != null ? { cost } : {}) }),
   listMaintenanceLogs: (taskId: number) => request<MaintenanceLog[]>(`/maintenance/${taskId}/log`),
 
   // Utilities

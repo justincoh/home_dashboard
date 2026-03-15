@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
-import type { AnnualReport } from '../api/client';
+import type { AnnualReport, MaintenanceExpenseItem } from '../api/client';
+import { parseLocalDate } from '../utils/dates';
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
@@ -96,7 +97,7 @@ export default function ReportsPage() {
             <p className="font-heading text-3xl">{fmt$(report.grand_total)}</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Utilities -- uses a table layout, so rendered directly */}
             <div className="bg-white rounded-xl border border-warm-200 p-6 hover:border-warm-300 transition-colors">
               <div className="flex items-center justify-between mb-4">
@@ -151,6 +152,40 @@ export default function ReportsPage() {
                 start_date: c.start_date, end_date: c.end_date,
               }))}
             />
+
+            {/* Maintenance */}
+            <div className="bg-white rounded-xl border border-warm-200 p-6 hover:border-warm-300 transition-colors">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-heading text-lg text-warm-800">Maintenance</h2>
+                <span className="font-heading text-lg text-warm-900">{fmt$(report.maintenance_total)}</span>
+              </div>
+              {report.maintenance_items.length === 0 ? (
+                <p className="text-warm-400 text-sm italic">No maintenance expenses this year.</p>
+              ) : (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-warm-500 text-left border-b border-warm-100">
+                      <th className="pb-2 font-medium">Task</th>
+                      <th className="pb-2 font-medium">Date</th>
+                      <th className="pb-2 font-medium text-right">Cost</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {report.maintenance_items.map((item, i) => (
+                      <tr key={i} className="border-b border-warm-50">
+                        <td className="py-2">
+                          <Link to={`/maintenance/${item.task_id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">
+                            {item.task_name}
+                          </Link>
+                        </td>
+                        <td className="py-2 text-warm-500 text-xs">{parseLocalDate(item.completed_at).toLocaleDateString()}</td>
+                        <td className="py-2 text-right text-warm-800 font-medium">{fmt$(item.cost)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
         </>
       ) : null}
