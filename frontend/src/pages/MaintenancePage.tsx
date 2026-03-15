@@ -25,7 +25,7 @@ export default function MaintenancePage() {
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState({
-    name: '', frequency: '',
+    name: '', frequency: '', recurring: true,
     last_completed: '', next_due: '',
   });
   const [completeId, setCompleteId] = useState<number | null>(null);
@@ -35,7 +35,7 @@ export default function MaintenancePage() {
   useEffect(() => { load(); }, []);
 
   const resetForm = () => {
-    setForm({ name: '', frequency: '', last_completed: '', next_due: '' });
+    setForm({ name: '', frequency: '', recurring: true, last_completed: '', next_due: '' });
     setShowForm(false);
     setEditId(null);
   };
@@ -44,7 +44,8 @@ export default function MaintenancePage() {
     e.preventDefault();
     const data = {
       name: form.name,
-      frequency: form.frequency.trim().toLowerCase(),
+      frequency: form.recurring ? form.frequency.trim().toLowerCase() : '',
+      recurring: form.recurring,
       last_completed: form.last_completed || null,
       next_due: form.next_due || null,
     };
@@ -59,7 +60,7 @@ export default function MaintenancePage() {
 
   const startEdit = (t: MaintenanceTask) => {
     setForm({
-      name: t.name, frequency: t.frequency,
+      name: t.name, frequency: t.frequency, recurring: t.recurring,
       last_completed: t.last_completed || '', next_due: t.next_due || '',
     });
     setEditId(t.id);
@@ -107,30 +108,44 @@ export default function MaintenancePage() {
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
           <input required placeholder="Task Name" value={form.name} onChange={e => setForm({...form, name: e.target.value})}
             className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400 col-span-2" />
-          <div className="col-span-2">
-            <div className="flex items-center gap-3">
-              <input required placeholder="e.g. 2w, 3m, 1y" value={form.frequency}
-                onChange={e => setForm({...form, frequency: e.target.value})}
-                className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400 flex-1" />
-              {form.frequency && (
-                <span className={`text-sm ${freqPreview ? 'text-sage-600' : 'text-red-500'}`}>
-                  {freqPreview ? `Every ${freqPreview}` : 'Invalid format'}
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-warm-400 mt-1">d = days, w = weeks, m = months, y = years</p>
+          <div className="col-span-2 flex gap-2">
+            <button type="button" onClick={() => setForm({...form, recurring: true})}
+              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${form.recurring ? 'bg-sage-700 text-white border-sage-700' : 'bg-warm-50 text-warm-600 border-warm-300 hover:border-warm-400'}`}>
+              Recurring
+            </button>
+            <button type="button" onClick={() => setForm({...form, recurring: false, frequency: ''})}
+              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${!form.recurring ? 'bg-sage-700 text-white border-sage-700' : 'bg-warm-50 text-warm-600 border-warm-300 hover:border-warm-400'}`}>
+              One Time
+            </button>
           </div>
+          {form.recurring && (
+            <div className="col-span-2">
+              <div className="flex items-center gap-3">
+                <input required placeholder="e.g. 2w, 3m, 1y" value={form.frequency}
+                  onChange={e => setForm({...form, frequency: e.target.value})}
+                  className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400 flex-1" />
+                {form.frequency && (
+                  <span className={`text-sm ${freqPreview ? 'text-sage-600' : 'text-red-500'}`}>
+                    {freqPreview ? `Every ${freqPreview}` : 'Invalid format'}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-warm-400 mt-1">d = days, w = weeks, m = months, y = years</p>
+            </div>
+          )}
           <div>
             <label className="block text-xs text-warm-500 mb-1">Last Completed</label>
             <input type="date" value={form.last_completed} onChange={e => setForm({...form, last_completed: e.target.value})}
               className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 w-full" />
           </div>
-          <div>
-            <label className="block text-xs text-warm-500 mb-1">Next Due</label>
-            <input type="date" value={form.next_due} onChange={e => setForm({...form, next_due: e.target.value})}
-              className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 w-full" />
-          </div>
-          <button type="submit" disabled={!freqPreview} className="col-span-2 bg-sage-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-sage-800 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+          {form.recurring && (
+            <div>
+              <label className="block text-xs text-warm-500 mb-1">Next Due</label>
+              <input type="date" value={form.next_due} onChange={e => setForm({...form, next_due: e.target.value})}
+                className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 w-full" />
+            </div>
+          )}
+          <button type="submit" disabled={form.recurring && !freqPreview} className="col-span-2 bg-sage-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-sage-800 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
             {editId ? 'Update' : 'Create'}
           </button>
         </form>
@@ -156,8 +171,14 @@ export default function MaintenancePage() {
             <div>
               <Link to={`/maintenance/${t.id}`} className="font-medium text-accent-800 hover:text-accent-600 transition-colors">{t.name}</Link>
               <div className="text-xs text-warm-400 mt-1">
-                Every {formatFrequency(t.frequency) || t.frequency} &middot;
-                Due: {t.next_due ? parseLocalDate(t.next_due).toLocaleDateString() : 'Not set'} &middot;
+                {t.recurring ? (
+                  <>
+                    Every {formatFrequency(t.frequency) || t.frequency} &middot;
+                    Due: {t.next_due ? parseLocalDate(t.next_due).toLocaleDateString() : 'Not set'} &middot;
+                  </>
+                ) : (
+                  <>One Time &middot; </>
+                )}
                 Last: {t.last_completed ? parseLocalDate(t.last_completed).toLocaleDateString() : 'Never'}
               </div>
             </div>

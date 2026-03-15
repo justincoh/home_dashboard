@@ -64,6 +64,7 @@ export interface MaintenanceTask {
   id: number;
   name: string;
   frequency: string;
+  recurring: boolean;
   last_completed: string | null;
   next_due: string | null;
 }

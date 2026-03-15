@@ -11,6 +11,11 @@ Base.metadata.create_all(bind=engine)
 
 # Migrations
 inspector = inspect(engine)
+maintenance_task_cols = [c["name"] for c in inspector.get_columns("maintenance_tasks")]
+if "recurring" not in maintenance_task_cols:
+    with engine.begin() as conn:
+        conn.execute(text("ALTER TABLE maintenance_tasks ADD COLUMN recurring BOOLEAN DEFAULT 1"))
+
 maintenance_log_cols = [c["name"] for c in inspector.get_columns("maintenance_log")]
 if "cost" not in maintenance_log_cols:
     with engine.begin() as conn:

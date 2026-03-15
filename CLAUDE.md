@@ -44,6 +44,7 @@ Manual startup:
 - **Backend routers**: All follow the same pattern — list, get, create, update, delete. Status 201 for creates, 204 for deletes
 - **Cascade deletes**: `Utility` → `UtilityBill` via SQLAlchemy relationship cascade
 - **Maintenance costs**: `MaintenanceLog` has an optional `cost` field (Numeric(10,2)). Maintenance costs with non-null cost are included in the annual expense report and grand total.
+- **Maintenance types**: `MaintenanceTask` has a `recurring` boolean (default True). One-time tasks have no frequency or next_due. Frequency is only validated/used for recurring tasks.
 
 ## Database
 

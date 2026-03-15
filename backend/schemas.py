@@ -131,7 +131,8 @@ class ContractDetail(ContractOut):
 # --- Maintenance ---
 class MaintenanceBase(BaseModel):
     name: str
-    frequency: str
+    frequency: str = ""
+    recurring: bool = True
     last_completed: Optional[date] = None
     next_due: Optional[date] = None
 

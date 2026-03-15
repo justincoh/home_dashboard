@@ -43,7 +43,7 @@ def get_task(task_id: int, db: Session = Depends(get_db)):
 
 @router.post("", response_model=MaintenanceOut, status_code=201)
 def create_task(task: MaintenanceCreate, db: Session = Depends(get_db)):
-    if not parse_frequency(task.frequency):
+    if task.recurring and not parse_frequency(task.frequency):
         raise HTTPException(status_code=422, detail="Invalid frequency format. Use e.g. 3d, 2w, 6m, 1y")
     db_task = MaintenanceTask(**task.model_dump())
     db.add(db_task)
@@ -54,7 +54,7 @@ def create_task(task: MaintenanceCreate, db: Session = Depends(get_db)):
 
 @router.put("/{task_id}", response_model=MaintenanceOut)
 def update_task(task_id: int, task: MaintenanceUpdate, db: Session = Depends(get_db)):
-    if not parse_frequency(task.frequency):
+    if task.recurring and not parse_frequency(task.frequency):
         raise HTTPException(status_code=422, detail="Invalid frequency format. Use e.g. 3d, 2w, 6m, 1y")
     db_task = db.query(MaintenanceTask).filter(MaintenanceTask.id == task_id).first()
     if not db_task:
@@ -82,9 +82,10 @@ def complete_task(task_id: int, body: MaintenanceCompleteBody = None, db: Sessio
         raise HTTPException(status_code=404, detail="Task not found")
     today = date.today()
     db_task.last_completed = today
-    delta = parse_frequency(db_task.frequency)
-    if delta:
-        db_task.next_due = today + delta
+    if db_task.recurring:
+        delta = parse_frequency(db_task.frequency)
+        if delta:
+            db_task.next_due = today + delta
     log = MaintenanceLog(task_id=task_id, completed_at=today, cost=body.cost if body else None)
     db.add(log)
     db.commit()

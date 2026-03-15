@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Numeric, Date, DateTime, Enum, ForeignKey, LargeBinary
+from sqlalchemy import Column, Integer, String, Text, Numeric, Date, DateTime, Enum, ForeignKey, LargeBinary, Boolean
 from sqlalchemy.orm import relationship
 from database import Base
 import enum
@@ -75,7 +75,8 @@ class MaintenanceTask(Base):
     __tablename__ = "maintenance_tasks"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    frequency = Column(String, nullable=False)
+    frequency = Column(String, nullable=False, default="")
+    recurring = Column(Boolean, default=True)
     last_completed = Column(Date, nullable=True)
     next_due = Column(Date, nullable=True)
 

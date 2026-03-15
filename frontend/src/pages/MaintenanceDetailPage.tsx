@@ -64,13 +64,15 @@ export default function MaintenanceDetailPage() {
       <div className="bg-white rounded-xl border border-warm-200 p-6 mb-8">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Frequency</div>
-            <div>Every {formatFrequency(task.frequency) || task.frequency}</div>
+            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Type</div>
+            <div>{task.recurring ? `Every ${formatFrequency(task.frequency) || task.frequency}` : 'One Time'}</div>
           </div>
-          <div>
-            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Next Due</div>
-            <div>{task.next_due ? parseLocalDate(task.next_due).toLocaleDateString() : 'Not set'}</div>
-          </div>
+          {task.recurring && (
+            <div>
+              <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Next Due</div>
+              <div>{task.next_due ? parseLocalDate(task.next_due).toLocaleDateString() : 'Not set'}</div>
+            </div>
+          )}
           <div>
             <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Last Completed</div>
             <div>{task.last_completed ? parseLocalDate(task.last_completed).toLocaleDateString() : 'Never'}</div>
