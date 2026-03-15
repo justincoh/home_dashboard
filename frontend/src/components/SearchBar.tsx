@@ -43,14 +43,16 @@ export default function SearchBar() {
   }, [query]);
 
   useEffect(() => {
-    function handleSlashKey(e: KeyboardEvent) {
-      if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) {
+    function handleSearchShortcut(e: KeyboardEvent) {
+      const isSlash = e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName);
+      const isCmdF = e.key === 'f' && (e.metaKey || e.ctrlKey);
+      if (isSlash || isCmdF) {
         e.preventDefault();
         inputRef.current?.focus();
       }
     }
-    document.addEventListener('keydown', handleSlashKey);
-    return () => document.removeEventListener('keydown', handleSlashKey);
+    document.addEventListener('keydown', handleSearchShortcut);
+    return () => document.removeEventListener('keydown', handleSearchShortcut);
   }, []);
 
   useEffect(() => {
