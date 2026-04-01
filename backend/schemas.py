@@ -159,6 +159,11 @@ class MaintenanceCompleteBody(BaseModel):
     cost: Optional[float] = None
 
 
+class MaintenanceLogUpdate(BaseModel):
+    completed_at: date
+    cost: Optional[float] = None
+
+
 # --- Utility ---
 class UtilityBase(BaseModel):
     provider_name: str

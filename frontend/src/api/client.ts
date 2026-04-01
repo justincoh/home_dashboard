@@ -194,6 +194,8 @@ export const api = {
   deleteMaintenance: (id: number) => request<void>(`/maintenance/${id}`, { method: 'DELETE' }),
   completeMaintenance: (id: number, cost?: number) => request<MaintenanceTask>(`/maintenance/${id}/complete`, { method: 'POST', body: JSON.stringify(cost != null ? { cost } : {}) }),
   listMaintenanceLogs: (taskId: number) => request<MaintenanceLog[]>(`/maintenance/${taskId}/log`),
+  updateMaintenanceLog: (logId: number, data: { completed_at: string; cost: number | null }) => request<MaintenanceLog>(`/maintenance/log/${logId}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteMaintenanceLog: (logId: number) => request<void>(`/maintenance/log/${logId}`, { method: 'DELETE' }),
 
   // Utilities
   listUtilities: () => request<Utility[]>('/utilities'),
