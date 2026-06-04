@@ -1,14 +1,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
-import type { Utility, UtilityBill, FileAttachment } from '../api/client';
+import type { Service, Bill, FileAttachment } from '../api/client';
 import { parseLocalDate } from '../utils/dates';
 import Modal from '../components/Modal';
 
-export default function UtilityDetailPage() {
+export default function ServiceDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const [utility, setUtility] = useState<Utility | null>(null);
-  const [bills, setBills] = useState<UtilityBill[]>([]);
+  const [service, setService] = useState<Service | null>(null);
+  const [bills, setBills] = useState<Bill[]>([]);
   const [showBillForm, setShowBillForm] = useState(false);
   const [editBillId, setEditBillId] = useState<number | null>(null);
   const [billForm, setBillForm] = useState({ bill_date: '', amount: '', usage_value: '', usage_unit: '' });
@@ -17,16 +17,16 @@ export default function UtilityDetailPage() {
 
   useEffect(() => {
     if (!id) return;
-    const uid = Number(id);
-    api.getUtility(uid).then(setUtility);
-    api.listBills(uid).then(setBills);
+    const sid = Number(id);
+    api.getService(sid).then(setService);
+    api.listBills('service', sid).then(setBills);
   }, [id]);
 
-  const loadBills = () => api.listBills(Number(id)).then(setBills);
+  const loadBills = () => api.listBills('service', Number(id)).then(setBills);
 
   const loadBillFiles = (billIds: number[]) => {
     billIds.forEach(billId => {
-      api.listFiles('utility_bill', billId).then(files => {
+      api.listFiles('bill', billId).then(files => {
         if (files.length > 0) {
           setBillFiles(prev => ({ ...prev, [billId]: files[0] }));
         }
@@ -41,7 +41,7 @@ export default function UtilityDetailPage() {
   }, [bills]);
 
   const handleFileUpload = async (billId: number, file: File) => {
-    const attachment = await api.uploadFile('utility_bill', billId, file);
+    const attachment = await api.uploadFile('bill', billId, file);
     setBillFiles(prev => ({ ...prev, [billId]: attachment }));
     if (fileInputRefs.current[billId]) fileInputRefs.current[billId]!.value = '';
   };
@@ -62,10 +62,10 @@ export default function UtilityDetailPage() {
     setEditBillId(null);
   };
 
-  const startEditBill = (b: UtilityBill) => {
+  const startEditBill = (b: Bill) => {
     setBillForm({
       bill_date: b.bill_date,
-      amount: String(b.amount),
+      amount: b.amount != null ? String(b.amount) : '',
       usage_value: b.usage_value != null ? String(b.usage_value) : '',
       usage_unit: b.usage_unit || '',
     });
@@ -76,7 +76,8 @@ export default function UtilityDetailPage() {
   const handleBillSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const data = {
-      utility_id: Number(id),
+      entity_type: 'service',
+      entity_id: Number(id),
       bill_date: billForm.bill_date,
       amount: Number(billForm.amount),
       usage_value: billForm.usage_value ? Number(billForm.usage_value) : null,
@@ -85,7 +86,7 @@ export default function UtilityDetailPage() {
     if (editBillId) {
       await api.updateBill(editBillId, data);
     } else {
-      await api.createBill(Number(id), data);
+      await api.createBill(data);
     }
     resetBillForm();
     loadBills();
@@ -97,37 +98,37 @@ export default function UtilityDetailPage() {
     loadBills();
   };
 
-  if (!utility) return <p className="text-warm-400 font-medium animate-pulse">Loading...</p>;
+  if (!service) return <p className="text-warm-400 font-medium animate-pulse">Loading...</p>;
 
   // Simple bar chart using CSS
   const chartBills = [...bills].reverse().slice(-12);
-  const maxAmount = Math.max(...chartBills.map(b => b.amount), 1);
+  const maxAmount = Math.max(...chartBills.map(b => b.amount ?? 0), 1);
 
   return (
     <div>
-      <Link to="/utilities" className="text-warm-500 hover:text-warm-700 text-sm font-medium transition-colors">&larr; Back to Utilities</Link>
-      <h1 className="font-heading text-2xl text-warm-900 mt-2 mb-4">{utility.provider_name}</h1>
+      <Link to="/services" className="text-warm-500 hover:text-warm-700 text-sm font-medium transition-colors">&larr; Back to Services</Link>
+      <h1 className="font-heading text-2xl text-warm-900 mt-2 mb-4">{service.provider_name}</h1>
 
       <div className="bg-white rounded-xl border border-warm-200 p-6 mb-8">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Type</div>
-            <div className="capitalize">{utility.utility_type}</div>
+            <div className="capitalize">{service.service_type}</div>
           </div>
           <div>
             <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Account #</div>
-            <div>{utility.account_number || '—'}</div>
+            <div>{service.account_number || '—'}</div>
           </div>
           <div>
             <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Contact</div>
-            <div>{utility.contact_info || '—'}</div>
+            <div>{service.contact_info || '—'}</div>
           </div>
           <div>
             <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Notes</div>
-            <div>{utility.notes || '—'}</div>
+            <div>{service.notes || '—'}</div>
           </div>
         </div>
-        {utility.contract_terms && <p className="text-warm-600 leading-relaxed border-t border-warm-100 pt-4 mt-4">{utility.contract_terms}</p>}
+        {service.contract_terms && <p className="text-warm-600 leading-relaxed border-t border-warm-100 pt-4 mt-4">{service.contract_terms}</p>}
       </div>
 
       {/* Usage Chart */}
@@ -137,9 +138,9 @@ export default function UtilityDetailPage() {
           <div className="flex items-end gap-1" style={{ height: '160px' }}>
             {chartBills.map(b => (
               <div key={b.id} className="flex-1 flex flex-col items-center h-full justify-end">
-                <div className="text-[10px] text-warm-600 mb-1">{fmt$(b.amount, 0)}</div>
-                <div className="w-full bg-accent-600 hover:bg-accent-700 transition-colors rounded-t-md min-h-[2px]" style={{ height: `${(b.amount / maxAmount) * 100}%` }}
-                  title={fmt$(b.amount)}></div>
+                <div className="text-[10px] text-warm-600 mb-1">{fmt$(b.amount ?? 0, 0)}</div>
+                <div className="w-full bg-accent-600 hover:bg-accent-700 transition-colors rounded-t-md min-h-[2px]" style={{ height: `${((b.amount ?? 0) / maxAmount) * 100}%` }}
+                  title={fmt$(b.amount ?? 0)}></div>
               </div>
             ))}
           </div>
@@ -194,9 +195,9 @@ export default function UtilityDetailPage() {
             {bills.map(b => (
               <tr key={b.id} className="hover:bg-warm-50 transition-colors">
                 <td className="px-5 py-4">{parseLocalDate(b.bill_date).toLocaleDateString()}</td>
-                <td className="px-5 py-4 font-medium">{fmt$(b.amount)}</td>
+                <td className="px-5 py-4 font-medium">{b.amount != null ? fmt$(b.amount) : '—'}</td>
                 <td className="px-5 py-4">{b.usage_value != null ? `${b.usage_value} ${b.usage_unit || ''}` : '—'}</td>
-                <td className="px-5 py-4">{b.usage_value ? fmt$(b.amount / b.usage_value) : '—'}</td>
+                <td className="px-5 py-4">{b.usage_value && b.amount != null ? fmt$(b.amount / b.usage_value) : '—'}</td>
                 <td className="px-5 py-4">
                   {billFiles[b.id] ? (
                     <span className="flex items-center gap-2">

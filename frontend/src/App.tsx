@@ -5,8 +5,8 @@ import ProjectsPage from './pages/ProjectsPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import MaintenancePage from './pages/MaintenancePage';
 import MaintenanceDetailPage from './pages/MaintenanceDetailPage';
-import UtilitiesPage from './pages/UtilitiesPage';
-import UtilityDetailPage from './pages/UtilityDetailPage';
+import ServicesPage from './pages/ServicesPage';
+import ServiceDetailPage from './pages/ServiceDetailPage';
 import ContractsPage from './pages/ContractsPage';
 import ContractDetailPage from './pages/ContractDetailPage';
 import VendorsPage from './pages/VendorsPage';
@@ -25,8 +25,8 @@ export default function App() {
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
           <Route path="/maintenance" element={<MaintenancePage />} />
           <Route path="/maintenance/:id" element={<MaintenanceDetailPage />} />
-          <Route path="/utilities" element={<UtilitiesPage />} />
-          <Route path="/utilities/:id" element={<UtilityDetailPage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/services/:id" element={<ServiceDetailPage />} />
           <Route path="/contracts" element={<ContractsPage />} />
           <Route path="/contracts/:id" element={<ContractDetailPage />} />
           <Route path="/vendors" element={<VendorsPage />} />

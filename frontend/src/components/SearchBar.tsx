@@ -7,7 +7,7 @@ const ENTITY_CONFIG: Record<string, { label: string; path: string }> = {
   vendor: { label: 'Vendors', path: '/vendors' },
   project: { label: 'Projects', path: '/projects' },
   contract: { label: 'Contracts', path: '/contracts' },
-  utility: { label: 'Utilities', path: '/utilities' },
+  service: { label: 'Services', path: '/services' },
   maintenance: { label: 'Maintenance', path: '/maintenance' },
 };
 

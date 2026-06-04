@@ -70,15 +70,15 @@ export default function DashboardPage() {
 
         {/* Recent Bills */}
         <div className="bg-white rounded-xl border border-warm-200 p-6 hover:border-warm-300 transition-colors">
-          <h2 className="font-heading text-lg text-warm-800 mb-3">Recent Utility Bills</h2>
+          <h2 className="font-heading text-lg text-warm-800 mb-3">Recent Bills</h2>
           {data.recent_bills.length === 0 ? (
             <p className="text-warm-400 text-sm italic">No recent bills.</p>
           ) : (
             <ul className="space-y-2">
               {data.recent_bills.map(b => (
                 <li key={b.id} className="flex justify-between text-sm">
-                  <span className="text-warm-600">{b.provider_name ? `${b.provider_name} — ` : ''}{parseLocalDate(b.bill_date).toLocaleDateString()}</span>
-                  <span className="font-medium text-warm-800">{fmt$(b.amount)}</span>
+                  <span className="text-warm-600">{b.entity_name ? `${b.entity_name} — ` : ''}{parseLocalDate(b.bill_date).toLocaleDateString()}</span>
+                  <span className="font-medium text-warm-800">{fmt$(b.amount ?? 0)}</span>
                 </li>
               ))}
             </ul>

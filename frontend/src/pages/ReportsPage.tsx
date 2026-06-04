@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
-import type { AnnualReport, MaintenanceExpenseItem } from '../api/client';
+import type { AnnualReport } from '../api/client';
 import { parseLocalDate } from '../utils/dates';
 
 const currentYear = new Date().getFullYear();
@@ -98,14 +98,14 @@ export default function ReportsPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Utilities -- uses a table layout, so rendered directly */}
+            {/* Services -- uses a table layout, so rendered directly */}
             <div className="bg-white rounded-xl border border-warm-200 p-6 hover:border-warm-300 transition-colors">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-heading text-lg text-warm-800">Utilities</h2>
-                <span className="font-heading text-lg text-warm-900">{fmt$(report.utilities_total)}</span>
+                <h2 className="font-heading text-lg text-warm-800">Services</h2>
+                <span className="font-heading text-lg text-warm-900">{fmt$(report.services_total)}</span>
               </div>
-              {report.utilities_breakdown.length === 0 ? (
-                <p className="text-warm-400 text-sm italic">No utility bills this year.</p>
+              {report.services_breakdown.length === 0 ? (
+                <p className="text-warm-400 text-sm italic">No service bills this year.</p>
               ) : (
                 <table className="w-full text-sm">
                   <thead>
@@ -115,15 +115,15 @@ export default function ReportsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {report.utilities_breakdown.map(u => (
-                      <tr key={u.utility_id} className="border-b border-warm-50">
+                    {report.services_breakdown.map(s => (
+                      <tr key={s.service_id} className="border-b border-warm-50">
                         <td className="py-2">
-                          <Link to={`/utilities/${u.utility_id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">
-                            {u.provider_name}
+                          <Link to={`/services/${s.service_id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">
+                            {s.provider_name}
                           </Link>
-                          <span className="text-warm-400 ml-1 text-xs">({u.utility_type})</span>
+                          <span className="text-warm-400 ml-1 text-xs">({s.service_type})</span>
                         </td>
-                        <td className="py-2 text-right text-warm-800 font-medium">{fmt$(u.total)}</td>
+                        <td className="py-2 text-right text-warm-800 font-medium">{fmt$(s.total)}</td>
                       </tr>
                     ))}
                   </tbody>

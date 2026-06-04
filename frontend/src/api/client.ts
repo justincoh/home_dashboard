@@ -69,31 +69,28 @@ export interface MaintenanceTask {
   next_due: string | null;
 }
 
-export interface MaintenanceLog {
-  id: number;
-  task_id: number;
-  completed_at: string;
-  cost: number | null;
-}
-
-export interface Utility {
+export interface Service {
   id: number;
   provider_name: string;
   account_number: string | null;
   contact_info: string | null;
   contract_terms: string | null;
-  utility_type: string;
+  service_type: string;
   notes: string | null;
 }
 
-export interface UtilityBill {
+export interface Bill {
   id: number;
-  utility_id: number;
+  entity_type: string;
+  entity_id: number;
   bill_date: string;
-  amount: number;
+  amount: number | null;
   usage_value: number | null;
   usage_unit: string | null;
-  provider_name?: string;
+}
+
+export interface DashboardBill extends Bill {
+  entity_name: string;
 }
 
 export interface FileAttachment {
@@ -110,13 +107,13 @@ export interface DashboardData {
   upcoming_maintenance: MaintenanceTask[];
   active_projects: Project[];
   expiring_contracts: Contract[];
-  recent_bills: UtilityBill[];
+  recent_bills: DashboardBill[];
 }
 
-export interface UtilityExpenseBreakdown {
-  utility_id: number;
+export interface ServiceExpenseBreakdown {
+  service_id: number;
   provider_name: string;
-  utility_type: string;
+  service_type: string;
   total: number;
 }
 
@@ -129,8 +126,8 @@ export interface MaintenanceExpenseItem {
 
 export interface AnnualReport {
   year: number;
-  utilities_total: number;
-  utilities_breakdown: UtilityExpenseBreakdown[];
+  services_total: number;
+  services_breakdown: ServiceExpenseBreakdown[];
   projects_total: number;
   projects: Project[];
   contracts_total: number;
@@ -193,22 +190,19 @@ export const api = {
   updateMaintenance: (id: number, data: Omit<MaintenanceTask, 'id'>) => request<MaintenanceTask>(`/maintenance/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteMaintenance: (id: number) => request<void>(`/maintenance/${id}`, { method: 'DELETE' }),
   completeMaintenance: (id: number, cost?: number) => request<MaintenanceTask>(`/maintenance/${id}/complete`, { method: 'POST', body: JSON.stringify(cost != null ? { cost } : {}) }),
-  listMaintenanceLogs: (taskId: number) => request<MaintenanceLog[]>(`/maintenance/${taskId}/log`),
-  updateMaintenanceLog: (logId: number, data: { completed_at: string; cost: number | null }) => request<MaintenanceLog>(`/maintenance/log/${logId}`, { method: 'PUT', body: JSON.stringify(data) }),
-  deleteMaintenanceLog: (logId: number) => request<void>(`/maintenance/log/${logId}`, { method: 'DELETE' }),
 
-  // Utilities
-  listUtilities: () => request<Utility[]>('/utilities'),
-  getUtility: (id: number) => request<Utility>(`/utilities/${id}`),
-  createUtility: (data: Omit<Utility, 'id'>) => request<Utility>('/utilities', { method: 'POST', body: JSON.stringify(data) }),
-  updateUtility: (id: number, data: Omit<Utility, 'id'>) => request<Utility>(`/utilities/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  deleteUtility: (id: number) => request<void>(`/utilities/${id}`, { method: 'DELETE' }),
+  // Services
+  listServices: () => request<Service[]>('/services'),
+  getService: (id: number) => request<Service>(`/services/${id}`),
+  createService: (data: Omit<Service, 'id'>) => request<Service>('/services', { method: 'POST', body: JSON.stringify(data) }),
+  updateService: (id: number, data: Omit<Service, 'id'>) => request<Service>(`/services/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteService: (id: number) => request<void>(`/services/${id}`, { method: 'DELETE' }),
 
-  // Utility Bills
-  listBills: (utilityId: number) => request<UtilityBill[]>(`/utilities/${utilityId}/bills`),
-  createBill: (utilityId: number, data: Omit<UtilityBill, 'id'>) => request<UtilityBill>(`/utilities/${utilityId}/bills`, { method: 'POST', body: JSON.stringify(data) }),
-  updateBill: (billId: number, data: Omit<UtilityBill, 'id'>) => request<UtilityBill>(`/utilities/bills/${billId}`, { method: 'PUT', body: JSON.stringify(data) }),
-  deleteBill: (billId: number) => request<void>(`/utilities/bills/${billId}`, { method: 'DELETE' }),
+  // Bills
+  listBills: (entityType: string, entityId: number) => request<Bill[]>(`/bills?entity_type=${entityType}&entity_id=${entityId}`),
+  createBill: (data: Omit<Bill, 'id'>) => request<Bill>('/bills', { method: 'POST', body: JSON.stringify(data) }),
+  updateBill: (billId: number, data: Omit<Bill, 'id'>) => request<Bill>(`/bills/${billId}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteBill: (billId: number) => request<void>(`/bills/${billId}`, { method: 'DELETE' }),
 
   // Reports
   getAnnualReport: (year: number) => request<AnnualReport>(`/reports/annual?year=${year}`),

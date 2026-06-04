@@ -1,22 +1,22 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client';
-import type { Utility } from '../api/client';
+import type { Service } from '../api/client';
 import Modal from '../components/Modal';
 
-export default function UtilitiesPage() {
-  const [utilities, setUtilities] = useState<Utility[]>([]);
+export default function ServicesPage() {
+  const [services, setServices] = useState<Service[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState({
-    provider_name: '', account_number: '', contact_info: '', contract_terms: '', utility_type: '', notes: '',
+    provider_name: '', account_number: '', contact_info: '', contract_terms: '', service_type: '', notes: '',
   });
 
-  const load = () => api.listUtilities().then(setUtilities);
+  const load = () => api.listServices().then(setServices);
   useEffect(() => { load(); }, []);
 
   const resetForm = () => {
-    setForm({ provider_name: '', account_number: '', contact_info: '', contract_terms: '', utility_type: '', notes: '' });
+    setForm({ provider_name: '', account_number: '', contact_info: '', contract_terms: '', service_type: '', notes: '' });
     setShowForm(false);
     setEditId(null);
   };
@@ -24,51 +24,51 @@ export default function UtilitiesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const data = {
-      provider_name: form.provider_name, utility_type: form.utility_type,
+      provider_name: form.provider_name, service_type: form.service_type,
       account_number: form.account_number || null, contact_info: form.contact_info || null,
       contract_terms: form.contract_terms || null, notes: form.notes || null,
     };
     if (editId) {
-      await api.updateUtility(editId, data);
+      await api.updateService(editId, data);
     } else {
-      await api.createUtility(data);
+      await api.createService(data);
     }
     resetForm();
     load();
   };
 
-  const startEdit = (u: Utility) => {
+  const startEdit = (s: Service) => {
     setForm({
-      provider_name: u.provider_name, utility_type: u.utility_type,
-      account_number: u.account_number || '', contact_info: u.contact_info || '',
-      contract_terms: u.contract_terms || '', notes: u.notes || '',
+      provider_name: s.provider_name, service_type: s.service_type,
+      account_number: s.account_number || '', contact_info: s.contact_info || '',
+      contract_terms: s.contract_terms || '', notes: s.notes || '',
     });
-    setEditId(u.id);
+    setEditId(s.id);
     setShowForm(true);
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Delete this utility?')) return;
-    await api.deleteUtility(id);
+    if (!confirm('Delete this service?')) return;
+    await api.deleteService(id);
     load();
   };
 
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="font-heading text-2xl text-warm-900">Utilities</h1>
+        <h1 className="font-heading text-2xl text-warm-900">Services</h1>
         <button onClick={() => { resetForm(); setShowForm(true); }}
           className="bg-accent-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-accent-600 text-sm">
-          Add Utility
+          Add Service
         </button>
       </div>
 
-      <Modal open={showForm} onClose={resetForm} title={editId ? 'Edit Utility' : 'Add Utility'}>
+      <Modal open={showForm} onClose={resetForm} title={editId ? 'Edit Service' : 'Add Service'}>
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
           <input required placeholder="Provider Name" value={form.provider_name}
             onChange={e => setForm({...form, provider_name: e.target.value})} className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
-          <input required placeholder="Type (electric, gas, water...)" value={form.utility_type}
-            onChange={e => setForm({...form, utility_type: e.target.value})} className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
+          <input required placeholder="Type (electric, gas, lawn care...)" value={form.service_type}
+            onChange={e => setForm({...form, service_type: e.target.value})} className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
           <input placeholder="Account Number" value={form.account_number}
             onChange={e => setForm({...form, account_number: e.target.value})} className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
           <input placeholder="Contact Info" value={form.contact_info}
@@ -95,21 +95,21 @@ export default function UtilitiesPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-warm-100">
-            {utilities.map(u => (
-              <tr key={u.id} className="hover:bg-warm-50 transition-colors">
-                <td className="px-5 py-4"><Link to={`/utilities/${u.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{u.provider_name}</Link></td>
-                <td className="px-5 py-4 capitalize">{u.utility_type}</td>
-                <td className="px-5 py-4">{u.account_number || '—'}</td>
-                <td className="px-5 py-4">{u.contact_info || '—'}</td>
+            {services.map(s => (
+              <tr key={s.id} className="hover:bg-warm-50 transition-colors">
+                <td className="px-5 py-4"><Link to={`/services/${s.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{s.provider_name}</Link></td>
+                <td className="px-5 py-4 capitalize">{s.service_type}</td>
+                <td className="px-5 py-4">{s.account_number || '—'}</td>
+                <td className="px-5 py-4">{s.contact_info || '—'}</td>
                 <td className="px-5 py-4 text-right space-x-2">
-                  <button onClick={() => startEdit(u)} className="text-accent-700 hover:text-accent-900 text-xs font-medium">Edit</button>
-                  <button onClick={() => handleDelete(u.id)} className="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
+                  <button onClick={() => startEdit(s)} className="text-accent-700 hover:text-accent-900 text-xs font-medium">Edit</button>
+                  <button onClick={() => handleDelete(s.id)} className="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {utilities.length === 0 && <p className="text-warm-400 text-sm italic p-8 text-center">No utilities found.</p>}
+        {services.length === 0 && <p className="text-warm-400 text-sm italic p-8 text-center">No services found.</p>}
       </div>
     </div>
   );

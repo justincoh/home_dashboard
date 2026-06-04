@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
-import type { MaintenanceTask, MaintenanceLog, FileAttachment } from '../api/client';
+import type { MaintenanceTask, Bill, FileAttachment } from '../api/client';
 import { parseLocalDate } from '../utils/dates';
 import Modal from '../components/Modal';
 import FileAttachments from '../components/FileAttachments';
@@ -25,11 +25,11 @@ export default function MaintenanceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [task, setTask] = useState<MaintenanceTask | null>(null);
-  const [logs, setLogs] = useState<MaintenanceLog[]>([]);
+  const [logs, setLogs] = useState<Bill[]>([]);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [completeCost, setCompleteCost] = useState('');
-  const [editLog, setEditLog] = useState<MaintenanceLog | null>(null);
-  const [editLogForm, setEditLogForm] = useState({ completed_at: '', cost: '' });
+  const [editLog, setEditLog] = useState<Bill | null>(null);
+  const [editLogForm, setEditLogForm] = useState({ bill_date: '', amount: '' });
   const [logFiles, setLogFiles] = useState<Record<number, FileAttachment>>({});
   const fileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
@@ -37,14 +37,14 @@ export default function MaintenanceDetailPage() {
     if (!id) return;
     const taskId = Number(id);
     api.getMaintenance(taskId).then(setTask);
-    api.listMaintenanceLogs(taskId).then(setLogs);
+    api.listBills('maintenance_task', taskId).then(setLogs);
   };
 
   useEffect(() => { load(); }, [id]);
 
   const loadLogFiles = (logIds: number[]) => {
     logIds.forEach(logId => {
-      api.listFiles('maintenance_log', logId).then(files => {
+      api.listFiles('bill', logId).then(files => {
         if (files.length > 0) {
           setLogFiles(prev => ({ ...prev, [logId]: files[0] }));
         }
@@ -59,7 +59,7 @@ export default function MaintenanceDetailPage() {
   }, [logs]);
 
   const handleLogFileUpload = async (logId: number, file: File) => {
-    const attachment = await api.uploadFile('maintenance_log', logId, file);
+    const attachment = await api.uploadFile('bill', logId, file);
     setLogFiles(prev => ({ ...prev, [logId]: attachment }));
     if (fileInputRefs.current[logId]) fileInputRefs.current[logId]!.value = '';
   };
@@ -89,20 +89,24 @@ export default function MaintenanceDetailPage() {
     navigate('/maintenance');
   };
 
-  const startEditLog = (log: MaintenanceLog) => {
+  const startEditLog = (log: Bill) => {
     setEditLog(log);
     setEditLogForm({
-      completed_at: log.completed_at,
-      cost: log.cost != null ? String(log.cost) : '',
+      bill_date: log.bill_date,
+      amount: log.amount != null ? String(log.amount) : '',
     });
   };
 
   const handleEditLog = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editLog) return;
-    await api.updateMaintenanceLog(editLog.id, {
-      completed_at: editLogForm.completed_at,
-      cost: editLogForm.cost ? parseFloat(editLogForm.cost) : null,
+    await api.updateBill(editLog.id, {
+      entity_type: 'maintenance_task',
+      entity_id: Number(id),
+      bill_date: editLogForm.bill_date,
+      amount: editLogForm.amount ? parseFloat(editLogForm.amount) : null,
+      usage_value: null,
+      usage_unit: null,
     });
     setEditLog(null);
     load();
@@ -110,13 +114,13 @@ export default function MaintenanceDetailPage() {
 
   const handleDeleteLog = async (logId: number) => {
     if (!confirm('Delete this log entry?')) return;
-    await api.deleteMaintenanceLog(logId);
+    await api.deleteBill(logId);
     load();
   };
 
   if (!task) return <p className="text-warm-400 font-medium animate-pulse">Loading...</p>;
 
-  const totalCost = logs.reduce((sum, log) => sum + (log.cost ?? 0), 0);
+  const totalCost = logs.reduce((sum, log) => sum + (log.amount ?? 0), 0);
 
   return (
     <div>
@@ -177,14 +181,14 @@ export default function MaintenanceDetailPage() {
         <form onSubmit={handleEditLog} className="space-y-3">
           <div>
             <label className="block text-xs text-warm-500 mb-1">Date</label>
-            <input type="date" required value={editLogForm.completed_at}
-              onChange={e => setEditLogForm({ ...editLogForm, completed_at: e.target.value })}
+            <input type="date" required value={editLogForm.bill_date}
+              onChange={e => setEditLogForm({ ...editLogForm, bill_date: e.target.value })}
               className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 w-full" />
           </div>
           <div>
             <label className="block text-xs text-warm-500 mb-1">Cost (optional)</label>
-            <input type="number" step="0.01" min="0" placeholder="0.00" value={editLogForm.cost}
-              onChange={e => setEditLogForm({ ...editLogForm, cost: e.target.value })}
+            <input type="number" step="0.01" min="0" placeholder="0.00" value={editLogForm.amount}
+              onChange={e => setEditLogForm({ ...editLogForm, amount: e.target.value })}
               className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400 w-full" />
           </div>
           <button type="submit" className="w-full bg-sage-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-sage-800 text-sm">
@@ -207,8 +211,8 @@ export default function MaintenanceDetailPage() {
           <tbody className="divide-y divide-warm-100">
             {logs.map(log => (
               <tr key={log.id} className="hover:bg-warm-50 transition-colors">
-                <td className="px-5 py-4">{parseLocalDate(log.completed_at).toLocaleDateString()}</td>
-                <td className="px-5 py-4 text-right">{log.cost != null ? fmt$(log.cost) : '—'}</td>
+                <td className="px-5 py-4">{parseLocalDate(log.bill_date).toLocaleDateString()}</td>
+                <td className="px-5 py-4 text-right">{log.amount != null ? fmt$(log.amount) : '—'}</td>
                 <td className="px-5 py-4">
                   {logFiles[log.id] ? (
                     <span className="flex items-center gap-2">
