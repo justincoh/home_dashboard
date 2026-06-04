@@ -29,9 +29,9 @@ Manual startup:
 
 **Routing**: React Router v7 with `Layout` component wrapping all routes. Each entity has a list page (`/entities`) and detail page (`/entities/:id`). Additional pages: `/reports` (annual expense report).
 
-**Search**: Global search bar in nav (`SearchBar.tsx`) with 300ms debounce. Backend `GET /api/search?q=` searches across vendors, projects, contracts, utilities, and maintenance tasks (case-insensitive LIKE, 5 results per entity type).
+**Search**: Global search bar in nav (`SearchBar.tsx`) with 300ms debounce. Backend `GET /api/search?q=` searches across vendors, projects, contracts, services, and maintenance tasks (case-insensitive LIKE, 5 results per entity type).
 
-**Reports**: `GET /api/reports/annual?year=` aggregates utility bills (grouped by provider), projects with actual_cost, and contracts with cost for a given year. Router in `backend/routers/reports.py`.
+**Reports**: `GET /api/reports/annual?year=` aggregates service bills (grouped by provider), projects with actual_cost, contracts with cost, and maintenance bills for a given year. Router in `backend/routers/reports.py`.
 
 ## Key Conventions
 
@@ -42,9 +42,11 @@ Manual startup:
 - **Enums**: `ProjectStatus` (planned/in_progress/done), `ContractType` (contract/warranty)
 - **Maintenance frequency**: Free-text interval format (e.g. `3d`, `2w`, `6m`, `1y`) — not an enum. Parsed by regex in `backend/routers/maintenance.py`
 - **Backend routers**: All follow the same pattern — list, get, create, update, delete. Status 201 for creates, 204 for deletes
-- **Cascade deletes**: `Utility` → `UtilityBill` via SQLAlchemy relationship cascade
-- **Maintenance costs**: `MaintenanceLog` has an optional `cost` field (Numeric(10,2)). Maintenance costs with non-null cost are included in the annual expense report and grand total.
+- **Service**: `Service` (formerly `Utility`) is any recurring provider relationship — utility, lawn care, pest control, etc. `service_type` is free-text. Router `backend/routers/services.py`, pages `/services`.
+- **Bill**: `Bill` is a polymorphic cost record (`entity_type` ∈ `service` | `maintenance_task`, plus `entity_id`) — same pattern as `FileAttachment`. There is no FK cascade; `delete` routes for `Service` and `MaintenanceTask` manually delete matching `Bill` rows. Generic CRUD at `/api/bills` (`backend/routers/bills.py`). `amount` is nullable (a cost-free maintenance completion is a Bill with `amount` NULL).
+- **Maintenance completions**: a completion = a `Bill` with `entity_type='maintenance_task'`. `POST /api/maintenance/{id}/complete` creates the Bill and advances `next_due`. Editing/deleting a maintenance Bill via `/api/bills` resyncs the task's `last_completed` from `max(Bill.bill_date)` (in `bills.py`), but does not touch `next_due`. `last_completed` is therefore derived from Bill history.
 - **Maintenance types**: `MaintenanceTask` has a `recurring` boolean (default True). One-time tasks have no frequency or next_due. Frequency is only validated/used for recurring tasks.
+- **File attachments for bills**: use `entity_type='bill'` with the Bill id (both service and maintenance bills).
 
 ## Database
 
@@ -62,7 +64,7 @@ cp house_dashboard.db house_dashboard_YYYYMMDD.db
 
 Then update the "Last backup" date below. Do not delete old backups.
 
-**Last backup: 2026-03-08**
+**Last backup: 2026-05-22**
 
 ## Python
 
