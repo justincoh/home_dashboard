@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, extract
 from database import get_db
-from models import UtilityBill, Utility, Project, Contract, MaintenanceLog, MaintenanceTask
-from schemas import AnnualReport, UtilityExpenseBreakdown, MaintenanceExpenseItem
+from models import Bill, Service, Project, Contract, MaintenanceTask
+from schemas import AnnualReport, ServiceExpenseBreakdown, MaintenanceExpenseItem
 from datetime import date
 
 router = APIRouter()
@@ -11,29 +11,29 @@ router = APIRouter()
 
 @router.get("/annual", response_model=AnnualReport)
 def get_annual_report(year: int = Query(default_factory=lambda: date.today().year), db: Session = Depends(get_db)):
-    bill_rows = (
+    service_rows = (
         db.query(
-            Utility.id,
-            Utility.provider_name,
-            Utility.utility_type,
-            func.sum(UtilityBill.amount).label("total"),
+            Service.id,
+            Service.provider_name,
+            Service.service_type,
+            func.sum(Bill.amount).label("total"),
         )
-        .join(UtilityBill, UtilityBill.utility_id == Utility.id)
-        .filter(extract("year", UtilityBill.bill_date) == year)
-        .group_by(Utility.id)
+        .join(Bill, (Bill.entity_type == "service") & (Bill.entity_id == Service.id))
+        .filter(extract("year", Bill.bill_date) == year)
+        .group_by(Service.id)
         .all()
     )
 
-    utilities_breakdown = [
-        UtilityExpenseBreakdown(
-            utility_id=row.id,
+    services_breakdown = [
+        ServiceExpenseBreakdown(
+            service_id=row.id,
             provider_name=row.provider_name,
-            utility_type=row.utility_type,
-            total=float(row.total),
+            service_type=row.service_type,
+            total=float(row.total or 0),
         )
-        for row in bill_rows
+        for row in service_rows
     ]
-    utilities_total = sum(u.total for u in utilities_breakdown)
+    services_total = sum(s.total for s in services_breakdown)
 
     projects = (
         db.query(Project)
@@ -59,34 +59,35 @@ def get_annual_report(year: int = Query(default_factory=lambda: date.today().yea
     contracts_total = float(sum(float(c.cost) for c in contracts))
 
     maint_rows = (
-        db.query(MaintenanceLog, MaintenanceTask.name)
-        .join(MaintenanceTask, MaintenanceLog.task_id == MaintenanceTask.id)
+        db.query(Bill, MaintenanceTask.name)
+        .join(MaintenanceTask, Bill.entity_id == MaintenanceTask.id)
         .filter(
-            MaintenanceLog.cost.isnot(None),
-            extract("year", MaintenanceLog.completed_at) == year,
+            Bill.entity_type == "maintenance_task",
+            Bill.amount.isnot(None),
+            extract("year", Bill.bill_date) == year,
         )
         .all()
     )
     maintenance_items = [
         MaintenanceExpenseItem(
-            task_id=log.task_id,
+            task_id=bill.entity_id,
             task_name=task_name,
-            completed_at=log.completed_at,
-            cost=float(log.cost),
+            completed_at=bill.bill_date,
+            cost=float(bill.amount),
         )
-        for log, task_name in maint_rows
+        for bill, task_name in maint_rows
     ]
     maintenance_total = sum(item.cost for item in maintenance_items)
 
     return AnnualReport(
         year=year,
-        utilities_total=utilities_total,
-        utilities_breakdown=utilities_breakdown,
+        services_total=services_total,
+        services_breakdown=services_breakdown,
         projects_total=projects_total,
         projects=projects,
         contracts_total=contracts_total,
         contracts=contracts,
         maintenance_total=maintenance_total,
         maintenance_items=maintenance_items,
-        grand_total=utilities_total + projects_total + contracts_total + maintenance_total,
+        grand_total=services_total + projects_total + contracts_total + maintenance_total,
     )

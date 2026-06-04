@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from database import get_db
-from models import Vendor, Project, Contract, Utility, MaintenanceTask
+from models import Vendor, Project, Contract, Service, MaintenanceTask
 from schemas import SearchResult
 
 router = APIRouter()
@@ -53,15 +53,15 @@ def search(q: str = Query(min_length=2), db: Session = Depends(get_db)):
         for c in contracts
     )
 
-    utilities = (
-        db.query(Utility)
-        .filter(Utility.provider_name.ilike(term) | Utility.utility_type.ilike(term))
+    services = (
+        db.query(Service)
+        .filter(Service.provider_name.ilike(term) | Service.service_type.ilike(term))
         .limit(LIMIT_PER_TYPE)
         .all()
     )
     results.extend(
-        SearchResult(entity_type="utility", id=u.id, name=u.provider_name, subtitle=u.utility_type)
-        for u in utilities
+        SearchResult(entity_type="service", id=s.id, name=s.provider_name, subtitle=s.service_type)
+        for s in services
     )
 
     tasks = (

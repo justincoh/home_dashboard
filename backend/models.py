@@ -80,42 +80,27 @@ class MaintenanceTask(Base):
     last_completed = Column(Date, nullable=True)
     next_due = Column(Date, nullable=True)
 
-    logs = relationship("MaintenanceLog", back_populates="task", cascade="all, delete-orphan")
 
-
-class MaintenanceLog(Base):
-    __tablename__ = "maintenance_log"
-    id = Column(Integer, primary_key=True, index=True)
-    task_id = Column(Integer, ForeignKey("maintenance_tasks.id"), nullable=False)
-    completed_at = Column(Date, nullable=False)
-    cost = Column(Numeric(10, 2), nullable=True)
-
-    task = relationship("MaintenanceTask", back_populates="logs")
-
-
-class Utility(Base):
-    __tablename__ = "utilities"
+class Service(Base):
+    __tablename__ = "services"
     id = Column(Integer, primary_key=True, index=True)
     provider_name = Column(String, nullable=False)
     account_number = Column(String, nullable=True)
     contact_info = Column(String, nullable=True)
     contract_terms = Column(Text, nullable=True)
-    utility_type = Column(String, nullable=False)
+    service_type = Column(String, nullable=False)
     notes = Column(Text, nullable=True)
 
-    bills = relationship("UtilityBill", back_populates="utility", cascade="all, delete-orphan")
 
-
-class UtilityBill(Base):
-    __tablename__ = "utility_bills"
+class Bill(Base):
+    __tablename__ = "bills"
     id = Column(Integer, primary_key=True, index=True)
-    utility_id = Column(Integer, ForeignKey("utilities.id"), nullable=False)
+    entity_type = Column(String, nullable=False)
+    entity_id = Column(Integer, nullable=False)
     bill_date = Column(Date, nullable=False)
-    amount = Column(Numeric(10, 2), nullable=False)
+    amount = Column(Numeric(10, 2), nullable=True)
     usage_value = Column(Numeric(10, 2), nullable=True)
     usage_unit = Column(String, nullable=True)
-
-    utility = relationship("Utility", back_populates="bills")
 
 
 class FileAttachment(Base):

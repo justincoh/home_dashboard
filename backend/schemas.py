@@ -13,10 +13,10 @@ class SearchResult(BaseModel):
 
 
 # --- Reports ---
-class UtilityExpenseBreakdown(BaseModel):
-    utility_id: int
+class ServiceExpenseBreakdown(BaseModel):
+    service_id: int
     provider_name: str
-    utility_type: str
+    service_type: str
     total: float
 
 
@@ -29,8 +29,8 @@ class MaintenanceExpenseItem(BaseModel):
 
 class AnnualReport(BaseModel):
     year: int
-    utilities_total: float
-    utilities_breakdown: list[UtilityExpenseBreakdown]
+    services_total: float
+    services_breakdown: list[ServiceExpenseBreakdown]
     projects_total: float
     projects: list["ProjectOut"]
     contracts_total: float
@@ -147,64 +147,52 @@ class MaintenanceOut(MaintenanceBase):
     model_config = {"from_attributes": True}
 
 
-class MaintenanceLogOut(BaseModel):
-    id: int
-    task_id: int
-    completed_at: date
-    cost: Optional[float] = None
-    model_config = {"from_attributes": True}
-
-
 class MaintenanceCompleteBody(BaseModel):
     cost: Optional[float] = None
 
 
-class MaintenanceLogUpdate(BaseModel):
-    completed_at: date
-    cost: Optional[float] = None
-
-
-# --- Utility ---
-class UtilityBase(BaseModel):
+# --- Service ---
+class ServiceBase(BaseModel):
     provider_name: str
     account_number: Optional[str] = None
     contact_info: Optional[str] = None
     contract_terms: Optional[str] = None
-    utility_type: str
+    service_type: str
     notes: Optional[str] = None
 
-class UtilityCreate(UtilityBase):
+class ServiceCreate(ServiceBase):
     pass
 
-class UtilityUpdate(UtilityBase):
+class ServiceUpdate(ServiceBase):
     pass
 
-class UtilityOut(UtilityBase):
+class ServiceOut(ServiceBase):
     id: int
     model_config = {"from_attributes": True}
 
 
-# --- Utility Bill ---
-class UtilityBillBase(BaseModel):
-    utility_id: int
+# --- Bill ---
+class BillBase(BaseModel):
+    entity_type: str
+    entity_id: int
     bill_date: date
-    amount: float
+    amount: Optional[float] = None
     usage_value: Optional[float] = None
     usage_unit: Optional[str] = None
 
-class UtilityBillCreate(UtilityBillBase):
+class BillCreate(BillBase):
     pass
 
-class UtilityBillUpdate(UtilityBillBase):
+class BillUpdate(BillBase):
     pass
 
-class UtilityBillOut(UtilityBillBase):
+class BillOut(BillBase):
     id: int
     model_config = {"from_attributes": True}
 
 
-class DashboardBillOut(UtilityBillOut):
-    provider_name: str
+class DashboardBillOut(BillOut):
+    entity_name: str
 
 
 # --- File Attachment ---
