@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
-import type { Provider, LogEntry, Quote, Contract } from '../api/client';
+import type { Provider, LogEntry, Quote, Contract, FileAttachment } from '../api/client';
 import { parseLocalDate } from '../utils/dates';
 import Modal from '../components/Modal';
 
@@ -11,6 +11,7 @@ export default function ProviderDetailPage() {
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [contracts, setContracts] = useState<Contract[]>([]);
+  const [entryFiles, setEntryFiles] = useState<Record<number, FileAttachment[]>>({});
   const [showEdit, setShowEdit] = useState(false);
   const [form, setForm] = useState({
     name: '', service_type: '', phone: '', email: '',
@@ -28,10 +29,19 @@ export default function ProviderDetailPage() {
     api.listContracts().then(all => setContracts(all.filter(c => c.provider_id === pid)));
   }, [id]);
 
+  useEffect(() => {
+    entries.forEach(e => {
+      api.listFiles('log_entry', e.id).then(files => {
+        if (files.length > 0) setEntryFiles(prev => ({ ...prev, [e.id]: files }));
+      });
+    });
+  }, [entries]);
+
   if (!provider) return <p className="text-warm-400 font-medium animate-pulse">Loading...</p>;
 
   const total = entries.reduce((s, e) => s + (e.amount ?? 0), 0);
   const hasUsage = entries.some(e => e.usage_value != null);
+  const hasFiles = Object.keys(entryFiles).length > 0;
   const inputCls = 'border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400';
 
   const startEdit = () => {
@@ -114,6 +124,7 @@ export default function ProviderDetailPage() {
                 {hasUsage && <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Usage</th>}
                 {hasUsage && <th className="text-right px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">$ / Unit</th>}
                 <th className="text-right px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Amount</th>
+                {hasFiles && <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">PDF</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-warm-100">
@@ -124,6 +135,18 @@ export default function ProviderDetailPage() {
                   {hasUsage && <td className="px-5 py-4">{e.usage_value != null ? `${e.usage_value} ${e.usage_unit || ''}` : '—'}</td>}
                   {hasUsage && <td className="px-5 py-4 text-right">{e.usage_value && e.amount != null ? `${fmt$(e.amount / e.usage_value, 3)}${e.usage_unit ? ` / ${e.usage_unit}` : ''}` : '—'}</td>}
                   <td className="px-5 py-4 text-right font-medium">{e.amount != null ? fmt$(e.amount) : '—'}</td>
+                  {hasFiles && (
+                    <td className="px-5 py-4">
+                      {entryFiles[e.id]?.length ? (
+                        <span className="flex flex-col gap-1">
+                          {entryFiles[e.id].map(f => (
+                            <a key={f.id} href={api.getFileUrl(f.id)} target="_blank" rel="noreferrer"
+                              className="text-accent-700 hover:text-accent-900 text-xs font-medium transition-colors">{f.filename}</a>
+                          ))}
+                        </span>
+                      ) : '—'}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
