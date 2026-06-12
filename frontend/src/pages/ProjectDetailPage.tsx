@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
-import type { Project, Quote } from '../api/client';
+import type { Project, Quote, LogEntry } from '../api/client';
 import { parseLocalDate } from '../utils/dates';
 import FileAttachments from '../components/FileAttachments';
 
@@ -9,13 +9,17 @@ export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [project, setProject] = useState<Project | null>(null);
   const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [entries, setEntries] = useState<LogEntry[]>([]);
 
   useEffect(() => {
     if (!id) return;
     const pid = Number(id);
     api.getProject(pid).then(setProject);
     api.listQuotes({ project_id: pid }).then(setQuotes);
+    api.listLogEntries({ project_id: pid }).then(setEntries);
   }, [id]);
+
+  const entriesTotal = entries.reduce((s, e) => s + (e.amount ?? 0), 0);
 
   if (!project) return <p className="text-warm-400 font-medium animate-pulse">Loading...</p>;
 
@@ -64,7 +68,7 @@ export default function ProjectDetailPage() {
             <thead className="bg-warm-100">
               <tr>
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Amount</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Vendor</th>
+                <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Provider</th>
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Date</th>
               </tr>
             </thead>
@@ -72,8 +76,35 @@ export default function ProjectDetailPage() {
               {quotes.map(q => (
                 <tr key={q.id} className="hover:bg-warm-50 transition-colors">
                   <td className="px-5 py-4"><Link to={`/quotes/${q.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{fmt$(q.amount)}</Link></td>
-                  <td className="px-5 py-4">{q.vendor ? <Link to={`/vendors/${q.vendor.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{q.vendor.name}</Link> : '—'}</td>
+                  <td className="px-5 py-4">{q.provider ? <Link to={`/providers/${q.provider.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{q.provider.name}</Link> : '—'}</td>
                   <td className="px-5 py-4">{parseLocalDate(q.date_received).toLocaleDateString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="font-heading text-lg text-warm-800">Logged Spend</h2>
+        <span className="text-sm text-warm-600">total <span className="font-semibold text-warm-800">{fmt$(entriesTotal)}</span></span>
+      </div>
+      {entries.length === 0 ? <p className="text-warm-400 text-sm italic mb-8">No log entries linked to this project.</p> : (
+        <div className="bg-white rounded-xl border border-warm-200 overflow-hidden mb-8">
+          <table className="w-full text-sm">
+            <thead className="bg-warm-100">
+              <tr>
+                <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Date</th>
+                <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Title</th>
+                <th className="text-right px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Amount</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-warm-100">
+              {entries.map(e => (
+                <tr key={e.id} className="hover:bg-warm-50 transition-colors">
+                  <td className="px-5 py-4 whitespace-nowrap text-warm-600">{e.entry_date ? parseLocalDate(e.entry_date).toLocaleDateString() : '—'}</td>
+                  <td className="px-5 py-4"><Link to={`/log/${e.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{e.title}</Link></td>
+                  <td className="px-5 py-4 text-right font-medium">{e.amount != null ? fmt$(e.amount) : '—'}</td>
                 </tr>
               ))}
             </tbody>

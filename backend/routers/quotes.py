@@ -8,10 +8,10 @@ router = APIRouter()
 
 
 @router.get("", response_model=list[QuoteDetail])
-def list_quotes(vendor_id: int | None = None, project_id: int | None = None, db: Session = Depends(get_db)):
-    query = db.query(Quote).options(joinedload(Quote.vendor), joinedload(Quote.project))
-    if vendor_id:
-        query = query.filter(Quote.vendor_id == vendor_id)
+def list_quotes(provider_id: int | None = None, project_id: int | None = None, db: Session = Depends(get_db)):
+    query = db.query(Quote).options(joinedload(Quote.provider), joinedload(Quote.project))
+    if provider_id:
+        query = query.filter(Quote.provider_id == provider_id)
     if project_id:
         query = query.filter(Quote.project_id == project_id)
     return query.all()
@@ -20,7 +20,7 @@ def list_quotes(vendor_id: int | None = None, project_id: int | None = None, db:
 @router.get("/{quote_id}", response_model=QuoteDetail)
 def get_quote(quote_id: int, db: Session = Depends(get_db)):
     quote = db.query(Quote).options(
-        joinedload(Quote.vendor), joinedload(Quote.project)
+        joinedload(Quote.provider), joinedload(Quote.project)
     ).filter(Quote.id == quote_id).first()
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")

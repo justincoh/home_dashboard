@@ -1,28 +1,28 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
-import type { Contract, Vendor } from '../api/client';
+import type { Contract, Provider } from '../api/client';
 import { parseLocalDate } from '../utils/dates';
 import Modal from '../components/Modal';
 
 export default function ContractsPage() {
   const [contracts, setContracts] = useState<Contract[]>([]);
-  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [providers, setProviders] = useState<Provider[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState({
-    name: '', type: 'contract' as Contract['type'], vendor_id: '',
+    name: '', type: 'contract' as Contract['type'], provider_id: '',
     start_date: '', end_date: '', cost: '', payment_terms: '', notes: '',
   });
 
   const load = () => {
     api.listContracts().then(setContracts);
-    api.listVendors().then(setVendors);
+    api.listProviders().then(setProviders);
   };
   useEffect(() => { load(); }, []);
 
   const resetForm = () => {
-    setForm({ name: '', type: 'contract', vendor_id: '', start_date: '', end_date: '', cost: '', payment_terms: '', notes: '' });
+    setForm({ name: '', type: 'contract', provider_id: '', start_date: '', end_date: '', cost: '', payment_terms: '', notes: '' });
     setShowForm(false);
     setEditId(null);
   };
@@ -31,23 +31,20 @@ export default function ContractsPage() {
     e.preventDefault();
     const data = {
       name: form.name, type: form.type,
-      vendor_id: form.vendor_id ? Number(form.vendor_id) : null,
+      provider_id: form.provider_id ? Number(form.provider_id) : null,
       start_date: form.start_date, end_date: form.end_date || null,
       cost: form.cost ? Number(form.cost) : null,
       payment_terms: form.payment_terms || null, notes: form.notes || null,
     };
-    if (editId) {
-      await api.updateContract(editId, data);
-    } else {
-      await api.createContract(data);
-    }
+    if (editId) await api.updateContract(editId, data);
+    else await api.createContract(data);
     resetForm();
     load();
   };
 
   const startEdit = (c: Contract) => {
     setForm({
-      name: c.name, type: c.type, vendor_id: c.vendor_id ? String(c.vendor_id) : '',
+      name: c.name, type: c.type, provider_id: c.provider_id ? String(c.provider_id) : '',
       start_date: c.start_date, end_date: c.end_date || '', cost: c.cost ? String(c.cost) : '',
       payment_terms: c.payment_terms || '', notes: c.notes || '',
     });
@@ -67,6 +64,8 @@ export default function ContractsPage() {
     return parseLocalDate(a.end_date).getTime() - parseLocalDate(b.end_date).getTime();
   });
 
+  const inputCls = 'border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400';
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -79,28 +78,22 @@ export default function ContractsPage() {
 
       <Modal open={showForm} onClose={resetForm} title={editId ? 'Edit Contract' : 'Add Contract'}>
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
-          <input required placeholder="Name" value={form.name} onChange={e => setForm({...form, name: e.target.value})}
-            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
-          <select value={form.type} onChange={e => setForm({...form, type: e.target.value as Contract['type']})}
+          <input required placeholder="Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className={inputCls} />
+          <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value as Contract['type'] })}
             className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50">
             <option value="contract">Contract</option>
             <option value="warranty">Warranty</option>
           </select>
-          <select value={form.vendor_id} onChange={e => setForm({...form, vendor_id: e.target.value})}
+          <select value={form.provider_id} onChange={e => setForm({ ...form, provider_id: e.target.value })}
             className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50">
-            <option value="">No Vendor</option>
-            {vendors.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+            <option value="">No Provider</option>
+            {providers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
-          <input placeholder="Cost" type="number" step="0.01" value={form.cost}
-            onChange={e => setForm({...form, cost: e.target.value})} className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
-          <input required type="date" value={form.start_date} onChange={e => setForm({...form, start_date: e.target.value})}
-            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50" />
-          <input type="date" value={form.end_date} onChange={e => setForm({...form, end_date: e.target.value})}
-            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50" />
-          <input placeholder="Payment Terms" value={form.payment_terms} onChange={e => setForm({...form, payment_terms: e.target.value})}
-            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" />
-          <textarea placeholder="Notes" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})}
-            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400" rows={2} />
+          <input placeholder="Cost" type="number" step="0.01" value={form.cost} onChange={e => setForm({ ...form, cost: e.target.value })} className={inputCls} />
+          <input required type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} className={inputCls} />
+          <input type="date" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} className={inputCls} />
+          <input placeholder="Payment Terms" value={form.payment_terms} onChange={e => setForm({ ...form, payment_terms: e.target.value })} className={inputCls} />
+          <textarea placeholder="Notes" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} className={inputCls} rows={2} />
           <button type="submit" className="col-span-2 bg-sage-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-sage-800 text-sm">
             {editId ? 'Update' : 'Create'}
           </button>
@@ -113,7 +106,7 @@ export default function ContractsPage() {
             <tr>
               <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Name</th>
               <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Type</th>
-              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Vendor</th>
+              <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Provider</th>
               <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">End Date</th>
               <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Cost</th>
               <th className="px-5 py-3.5"></th>
@@ -124,7 +117,7 @@ export default function ContractsPage() {
               <tr key={c.id} className="hover:bg-warm-50 transition-colors">
                 <td className="px-5 py-4"><Link to={`/contracts/${c.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{c.name}</Link></td>
                 <td className="px-5 py-4 capitalize">{c.type}</td>
-                <td className="px-5 py-4">{c.vendor ? <Link to={`/vendors/${c.vendor.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{c.vendor.name}</Link> : '—'}</td>
+                <td className="px-5 py-4">{c.provider ? <Link to={`/providers/${c.provider.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{c.provider.name}</Link> : '—'}</td>
                 <td className="px-5 py-4">{c.end_date ? parseLocalDate(c.end_date).toLocaleDateString() : '—'}</td>
                 <td className="px-5 py-4">{c.cost ? fmt$(c.cost) : '—'}</td>
                 <td className="px-5 py-4 text-right space-x-2">

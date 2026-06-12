@@ -2,12 +2,10 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 import SearchBar from './SearchBar';
 
 const navItems = [
-  { path: '/', label: 'Dashboard' },
+  { path: '/', label: 'Log' },
+  { path: '/providers', label: 'Providers' },
   { path: '/projects', label: 'Projects' },
-  { path: '/maintenance', label: 'Maintenance' },
-  { path: '/services', label: 'Services' },
   { path: '/contracts', label: 'Contracts' },
-  { path: '/vendors', label: 'Vendors' },
   { path: '/quotes', label: 'Quotes' },
   { path: '/reports', label: 'Reports' },
 ];

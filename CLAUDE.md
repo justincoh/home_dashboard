@@ -29,24 +29,23 @@ Manual startup:
 
 **Routing**: React Router v7 with `Layout` component wrapping all routes. Each entity has a list page (`/entities`) and detail page (`/entities/:id`). Additional pages: `/reports` (annual expense report).
 
-**Search**: Global search bar in nav (`SearchBar.tsx`) with 300ms debounce. Backend `GET /api/search?q=` searches across vendors, projects, contracts, services, and maintenance tasks (case-insensitive LIKE, 5 results per entity type).
+**Search**: Global search bar in nav (`SearchBar.tsx`) with 300ms debounce. Backend `GET /api/search?q=` searches across providers, projects, contracts, and log entries (case-insensitive LIKE, 5 results per entity type).
 
-**Reports**: `GET /api/reports/annual?year=` aggregates service bills (grouped by provider), projects with actual_cost, contracts with cost, and maintenance bills for a given year. Router in `backend/routers/reports.py`.
+**Reports**: `GET /api/reports/annual?year=` aggregates log-entry amounts for the year, broken down `by_category`, `by_provider`, and `by_project`, plus contracts with cost. `grand_total = log_total + contracts_total` (project spend lives in log entries, so projects are a breakdown, not a separate additive bucket). Router in `backend/routers/reports.py`.
 
 ## Key Conventions
 
 - **Type imports**: Use `import type { Foo }` separate from value imports (required by Vite 5's module handling)
 - **Forms**: All create/edit forms use a `Modal` component (`components/Modal.tsx`), not inline forms
-- **File attachments**: Polymorphic via `entity_type` + `entity_id` on `FileAttachment` model. Files stored in `uploads/` with UUID names
 - **Styling**: Tailwind utility classes only, no custom CSS files
 - **Enums**: `ProjectStatus` (planned/in_progress/done), `ContractType` (contract/warranty)
-- **Maintenance frequency**: Free-text interval format (e.g. `3d`, `2w`, `6m`, `1y`) — not an enum. Parsed by regex in `backend/routers/maintenance.py`
 - **Backend routers**: All follow the same pattern — list, get, create, update, delete. Status 201 for creates, 204 for deletes
-- **Service**: `Service` (formerly `Utility`) is any recurring provider relationship — utility, lawn care, pest control, etc. `service_type` is free-text. Router `backend/routers/services.py`, pages `/services`.
-- **Bill**: `Bill` is a polymorphic cost record (`entity_type` ∈ `service` | `maintenance_task`, plus `entity_id`) — same pattern as `FileAttachment`. There is no FK cascade; `delete` routes for `Service` and `MaintenanceTask` manually delete matching `Bill` rows. Generic CRUD at `/api/bills` (`backend/routers/bills.py`). `amount` is nullable (a cost-free maintenance completion is a Bill with `amount` NULL).
-- **Maintenance completions**: a completion = a `Bill` with `entity_type='maintenance_task'`. `POST /api/maintenance/{id}/complete` creates the Bill and advances `next_due`. Editing/deleting a maintenance Bill via `/api/bills` resyncs the task's `last_completed` from `max(Bill.bill_date)` (in `bills.py`), but does not touch `next_due`. `last_completed` is therefore derived from Bill history.
-- **Maintenance types**: `MaintenanceTask` has a `recurring` boolean (default True). One-time tasks have no frequency or next_due. Frequency is only validated/used for recurring tasks.
-- **File attachments for bills**: use `entity_type='bill'` with the Bill id (both service and maintenance bills).
+- **LogEntry**: the central object — one thing that happened on a date (`entry_date`, nullable for pure reminders). Optional `amount` (cost-free events like "cleaned dryer vent" are a LogEntry with `amount` NULL), `provider_id`, `project_id`, `usage_value`/`usage_unit`, free-text `category`. Replaces the former `Service`/`MaintenanceTask`/`Bill` trio. Router `backend/routers/log_entries.py`, home page `/` (`LogPage`), detail `/log/:id`. `GET /api/log-entries` filters by `category`/`provider_id`/`project_id`/`year`/`limit`; `GET /api/log-entries/categories` powers category autocomplete.
+- **Reminders are inert**: a LogEntry with `recurring=true` carries `frequency` (free-text, e.g. `6m`, `1y`) and `next_due` for display only — there is no scheduling engine and no `/complete` endpoint. Recurrence is just stored so the app is a single pane of glass; the calendar is the real reminder system.
+- **Provider**: merge of the former `Vendor` + `Service` — any company/person (utility, contractor, lawn care…). `service_type` is free-text. Referenced by `Contract.provider_id`, `Quote.provider_id`, `LogEntry.provider_id`. Router `backend/routers/providers.py`, pages `/providers`. Deleting a provider detaches (nulls) its log entries rather than deleting them.
+- **Polymorphic deletes (no FK cascade)**: `LogEntry` delete manually deletes its `FileAttachment` rows; do it via ORM (`db.delete(att)`), not bulk `.delete()`, so the `FileData` blob cascades.
+- **File attachments**: Polymorphic via `entity_type` + `entity_id` on `FileAttachment`; blob stored in `FileData` (`backend/routers/files.py`). For a log entry's attachments use `entity_type='log_entry'` with the LogEntry id.
+- **Schema migration**: the Service/Bill/Maintenance → Provider/LogEntry collapse was a one-shot raw-SQL migration `backend/migrate_to_log.py`. Old tables were renamed `*_legacy` (vendors/services/maintenance_tasks/bills), NOT dropped — drop only on explicit instruction.
 
 ## Database
 

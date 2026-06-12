@@ -18,12 +18,15 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 // Types
-export interface Vendor {
+export interface Provider {
   id: number;
   name: string;
+  service_type: string;
   phone: string | null;
   email: string | null;
-  service_type: string;
+  account_number: string | null;
+  contract_terms: string | null;
+  notes: string | null;
 }
 
 export interface Project {
@@ -39,11 +42,11 @@ export interface Project {
 
 export interface Quote {
   id: number;
-  vendor_id: number;
+  provider_id: number;
   project_id: number | null;
   amount: number;
   date_received: string;
-  vendor?: Vendor;
+  provider?: Provider;
   project?: Project;
 }
 
@@ -51,47 +54,35 @@ export interface Contract {
   id: number;
   name: string;
   type: 'contract' | 'warranty';
-  vendor_id: number | null;
+  provider_id: number | null;
   start_date: string;
   end_date: string | null;
   cost: number | null;
   payment_terms: string | null;
   notes: string | null;
-  vendor?: Vendor;
+  provider?: Provider;
 }
 
-export interface MaintenanceTask {
+export interface LogEntry {
   id: number;
-  name: string;
-  frequency: string;
-  recurring: boolean;
-  last_completed: string | null;
-  next_due: string | null;
-}
-
-export interface Service {
-  id: number;
-  provider_name: string;
-  account_number: string | null;
-  contact_info: string | null;
-  contract_terms: string | null;
-  service_type: string;
-  notes: string | null;
-}
-
-export interface Bill {
-  id: number;
-  entity_type: string;
-  entity_id: number;
-  bill_date: string;
+  entry_date: string | null;
+  title: string;
+  description: string | null;
+  category: string | null;
+  provider_id: number | null;
+  project_id: number | null;
   amount: number | null;
   usage_value: number | null;
   usage_unit: string | null;
+  recurring: boolean;
+  frequency: string | null;
+  next_due: string | null;
+  created_at: string | null;
+  provider?: Provider;
+  project?: Project;
 }
 
-export interface DashboardBill extends Bill {
-  entity_name: string;
-}
+export type LogEntryInput = Omit<LogEntry, 'id' | 'created_at' | 'provider' | 'project'>;
 
 export interface FileAttachment {
   id: number;
@@ -103,37 +94,42 @@ export interface FileAttachment {
   uploaded_at: string;
 }
 
-export interface DashboardData {
-  upcoming_maintenance: MaintenanceTask[];
-  active_projects: Project[];
-  expiring_contracts: Contract[];
-  recent_bills: DashboardBill[];
+export interface DashboardLogEntry extends LogEntry {
+  provider_name: string | null;
 }
 
-export interface ServiceExpenseBreakdown {
-  service_id: number;
-  provider_name: string;
-  service_type: string;
+export interface DashboardData {
+  upcoming_reminders: LogEntry[];
+  active_projects: Project[];
+  expiring_contracts: Contract[];
+  recent_entries: DashboardLogEntry[];
+}
+
+export interface CategoryBreakdown {
+  category: string;
   total: number;
 }
 
-export interface MaintenanceExpenseItem {
-  task_id: number;
-  task_name: string;
-  completed_at: string;
-  cost: number;
+export interface ProviderBreakdown {
+  provider_id: number;
+  provider_name: string;
+  total: number;
+}
+
+export interface ProjectBreakdown {
+  project_id: number;
+  project_name: string;
+  total: number;
 }
 
 export interface AnnualReport {
   year: number;
-  services_total: number;
-  services_breakdown: ServiceExpenseBreakdown[];
-  projects_total: number;
-  projects: Project[];
+  log_total: number;
+  by_category: CategoryBreakdown[];
+  by_provider: ProviderBreakdown[];
+  by_project: ProjectBreakdown[];
   contracts_total: number;
   contracts: Contract[];
-  maintenance_total: number;
-  maintenance_items: MaintenanceExpenseItem[];
   grand_total: number;
 }
 
@@ -149,12 +145,12 @@ export const api = {
   // Dashboard
   getDashboard: () => request<DashboardData>('/dashboard'),
 
-  // Vendors
-  listVendors: () => request<Vendor[]>('/vendors'),
-  getVendor: (id: number) => request<Vendor>(`/vendors/${id}`),
-  createVendor: (data: Omit<Vendor, 'id'>) => request<Vendor>('/vendors', { method: 'POST', body: JSON.stringify(data) }),
-  updateVendor: (id: number, data: Omit<Vendor, 'id'>) => request<Vendor>(`/vendors/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  deleteVendor: (id: number) => request<void>(`/vendors/${id}`, { method: 'DELETE' }),
+  // Providers
+  listProviders: () => request<Provider[]>('/providers'),
+  getProvider: (id: number) => request<Provider>(`/providers/${id}`),
+  createProvider: (data: Omit<Provider, 'id'>) => request<Provider>('/providers', { method: 'POST', body: JSON.stringify(data) }),
+  updateProvider: (id: number, data: Omit<Provider, 'id'>) => request<Provider>(`/providers/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteProvider: (id: number) => request<void>(`/providers/${id}`, { method: 'DELETE' }),
 
   // Projects
   listProjects: (status?: string) => request<Project[]>(`/projects${status ? `?status=${status}` : ''}`),
@@ -164,45 +160,41 @@ export const api = {
   deleteProject: (id: number) => request<void>(`/projects/${id}`, { method: 'DELETE' }),
 
   // Quotes
-  listQuotes: (params?: { vendor_id?: number; project_id?: number }) => {
+  listQuotes: (params?: { provider_id?: number; project_id?: number }) => {
     const qs = new URLSearchParams();
-    if (params?.vendor_id) qs.set('vendor_id', String(params.vendor_id));
+    if (params?.provider_id) qs.set('provider_id', String(params.provider_id));
     if (params?.project_id) qs.set('project_id', String(params.project_id));
     const q = qs.toString();
     return request<Quote[]>(`/quotes${q ? `?${q}` : ''}`);
   },
   getQuote: (id: number) => request<Quote>(`/quotes/${id}`),
-  createQuote: (data: Omit<Quote, 'id' | 'vendor' | 'project'>) => request<Quote>('/quotes', { method: 'POST', body: JSON.stringify(data) }),
-  updateQuote: (id: number, data: Omit<Quote, 'id' | 'vendor' | 'project'>) => request<Quote>(`/quotes/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  createQuote: (data: Omit<Quote, 'id' | 'provider' | 'project'>) => request<Quote>('/quotes', { method: 'POST', body: JSON.stringify(data) }),
+  updateQuote: (id: number, data: Omit<Quote, 'id' | 'provider' | 'project'>) => request<Quote>(`/quotes/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteQuote: (id: number) => request<void>(`/quotes/${id}`, { method: 'DELETE' }),
 
   // Contracts
   listContracts: () => request<Contract[]>('/contracts'),
   getContract: (id: number) => request<Contract>(`/contracts/${id}`),
-  createContract: (data: Omit<Contract, 'id' | 'vendor'>) => request<Contract>('/contracts', { method: 'POST', body: JSON.stringify(data) }),
-  updateContract: (id: number, data: Omit<Contract, 'id' | 'vendor'>) => request<Contract>(`/contracts/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  createContract: (data: Omit<Contract, 'id' | 'provider'>) => request<Contract>('/contracts', { method: 'POST', body: JSON.stringify(data) }),
+  updateContract: (id: number, data: Omit<Contract, 'id' | 'provider'>) => request<Contract>(`/contracts/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteContract: (id: number) => request<void>(`/contracts/${id}`, { method: 'DELETE' }),
 
-  // Maintenance
-  listMaintenance: () => request<MaintenanceTask[]>('/maintenance'),
-  getMaintenance: (id: number) => request<MaintenanceTask>(`/maintenance/${id}`),
-  createMaintenance: (data: Omit<MaintenanceTask, 'id'>) => request<MaintenanceTask>('/maintenance', { method: 'POST', body: JSON.stringify(data) }),
-  updateMaintenance: (id: number, data: Omit<MaintenanceTask, 'id'>) => request<MaintenanceTask>(`/maintenance/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  deleteMaintenance: (id: number) => request<void>(`/maintenance/${id}`, { method: 'DELETE' }),
-  completeMaintenance: (id: number, cost?: number) => request<MaintenanceTask>(`/maintenance/${id}/complete`, { method: 'POST', body: JSON.stringify(cost != null ? { cost } : {}) }),
-
-  // Services
-  listServices: () => request<Service[]>('/services'),
-  getService: (id: number) => request<Service>(`/services/${id}`),
-  createService: (data: Omit<Service, 'id'>) => request<Service>('/services', { method: 'POST', body: JSON.stringify(data) }),
-  updateService: (id: number, data: Omit<Service, 'id'>) => request<Service>(`/services/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  deleteService: (id: number) => request<void>(`/services/${id}`, { method: 'DELETE' }),
-
-  // Bills
-  listBills: (entityType: string, entityId: number) => request<Bill[]>(`/bills?entity_type=${entityType}&entity_id=${entityId}`),
-  createBill: (data: Omit<Bill, 'id'>) => request<Bill>('/bills', { method: 'POST', body: JSON.stringify(data) }),
-  updateBill: (billId: number, data: Omit<Bill, 'id'>) => request<Bill>(`/bills/${billId}`, { method: 'PUT', body: JSON.stringify(data) }),
-  deleteBill: (billId: number) => request<void>(`/bills/${billId}`, { method: 'DELETE' }),
+  // Log entries
+  listLogEntries: (params?: { category?: string; provider_id?: number; project_id?: number; year?: number; limit?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.category) qs.set('category', params.category);
+    if (params?.provider_id) qs.set('provider_id', String(params.provider_id));
+    if (params?.project_id) qs.set('project_id', String(params.project_id));
+    if (params?.year) qs.set('year', String(params.year));
+    if (params?.limit) qs.set('limit', String(params.limit));
+    const q = qs.toString();
+    return request<LogEntry[]>(`/log-entries${q ? `?${q}` : ''}`);
+  },
+  getLogEntry: (id: number) => request<LogEntry>(`/log-entries/${id}`),
+  createLogEntry: (data: LogEntryInput) => request<LogEntry>('/log-entries', { method: 'POST', body: JSON.stringify(data) }),
+  updateLogEntry: (id: number, data: LogEntryInput) => request<LogEntry>(`/log-entries/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteLogEntry: (id: number) => request<void>(`/log-entries/${id}`, { method: 'DELETE' }),
+  listCategories: () => request<string[]>('/log-entries/categories'),
 
   // Reports
   getAnnualReport: (year: number) => request<AnnualReport>(`/reports/annual?year=${year}`),

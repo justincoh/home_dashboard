@@ -4,11 +4,10 @@ import { api } from '../api/client';
 import type { SearchResult } from '../api/client';
 
 const ENTITY_CONFIG: Record<string, { label: string; path: string }> = {
-  vendor: { label: 'Vendors', path: '/vendors' },
+  provider: { label: 'Providers', path: '/providers' },
   project: { label: 'Projects', path: '/projects' },
   contract: { label: 'Contracts', path: '/contracts' },
-  service: { label: 'Services', path: '/services' },
-  maintenance: { label: 'Maintenance', path: '/maintenance' },
+  log_entry: { label: 'Log', path: '/log' },
 };
 
 export default function SearchBar() {

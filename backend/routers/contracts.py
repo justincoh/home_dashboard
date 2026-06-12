@@ -9,13 +9,13 @@ router = APIRouter()
 
 @router.get("", response_model=list[ContractDetail])
 def list_contracts(db: Session = Depends(get_db)):
-    return db.query(Contract).options(joinedload(Contract.vendor)).all()
+    return db.query(Contract).options(joinedload(Contract.provider)).all()
 
 
 @router.get("/{contract_id}", response_model=ContractDetail)
 def get_contract(contract_id: int, db: Session = Depends(get_db)):
     contract = db.query(Contract).options(
-        joinedload(Contract.vendor)
+        joinedload(Contract.provider)
     ).filter(Contract.id == contract_id).first()
     if not contract:
         raise HTTPException(status_code=404, detail="Contract not found")

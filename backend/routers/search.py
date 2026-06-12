@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from database import get_db
-from models import Vendor, Project, Contract, Service, MaintenanceTask
+from models import Provider, Project, Contract, LogEntry
 from schemas import SearchResult
 
 router = APIRouter()
@@ -14,15 +14,15 @@ def search(q: str = Query(min_length=2), db: Session = Depends(get_db)):
     term = f"%{q}%"
     results: list[SearchResult] = []
 
-    vendors = (
-        db.query(Vendor)
-        .filter(Vendor.name.ilike(term) | Vendor.service_type.ilike(term))
+    providers = (
+        db.query(Provider)
+        .filter(Provider.name.ilike(term) | Provider.service_type.ilike(term))
         .limit(LIMIT_PER_TYPE)
         .all()
     )
     results.extend(
-        SearchResult(entity_type="vendor", id=v.id, name=v.name, subtitle=v.service_type)
-        for v in vendors
+        SearchResult(entity_type="provider", id=p.id, name=p.name, subtitle=p.service_type)
+        for p in providers
     )
 
     projects = (
@@ -53,26 +53,15 @@ def search(q: str = Query(min_length=2), db: Session = Depends(get_db)):
         for c in contracts
     )
 
-    services = (
-        db.query(Service)
-        .filter(Service.provider_name.ilike(term) | Service.service_type.ilike(term))
+    entries = (
+        db.query(LogEntry)
+        .filter(LogEntry.title.ilike(term) | LogEntry.category.ilike(term))
         .limit(LIMIT_PER_TYPE)
         .all()
     )
     results.extend(
-        SearchResult(entity_type="service", id=s.id, name=s.provider_name, subtitle=s.service_type)
-        for s in services
-    )
-
-    tasks = (
-        db.query(MaintenanceTask)
-        .filter(MaintenanceTask.name.ilike(term))
-        .limit(LIMIT_PER_TYPE)
-        .all()
-    )
-    results.extend(
-        SearchResult(entity_type="maintenance", id=t.id, name=t.name, subtitle=t.frequency)
-        for t in tasks
+        SearchResult(entity_type="log_entry", id=e.id, name=e.title, subtitle=e.category)
+        for e in entries
     )
 
     return results

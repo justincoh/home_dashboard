@@ -7,53 +7,20 @@ import { parseLocalDate } from '../utils/dates';
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
-interface ExpenseItem {
-  id: number;
-  name: string;
-  cost: number | null;
-  start_date: string | null;
-  end_date: string | null;
-}
-
-interface ExpenseCardProps {
-  title: string;
-  total: number;
-  emptyMessage: string;
-  basePath: string;
-  items: ExpenseItem[];
-}
-
-function ExpenseCard({ title, total, emptyMessage, basePath, items }: ExpenseCardProps) {
+function BreakdownBar({ label, total, max, to }: { label: string; total: number; max: number; to?: string }) {
+  const pct = max > 0 ? (total / max) * 100 : 0;
   return (
-    <div className="bg-white rounded-xl border border-warm-200 p-6 hover:border-warm-300 transition-colors">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-heading text-lg text-warm-800">{title}</h2>
-        <span className="font-heading text-lg text-warm-900">{fmt$(total)}</span>
+    <li className="text-sm">
+      <div className="flex justify-between mb-1">
+        <span className="text-warm-700">
+          {to ? <Link to={to} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{label}</Link> : label}
+        </span>
+        <span className="font-medium text-warm-800">{fmt$(total)}</span>
       </div>
-      {items.length === 0 ? (
-        <p className="text-warm-400 text-sm italic">{emptyMessage}</p>
-      ) : (
-        <ul className="space-y-3">
-          {items.map(item => (
-            <li key={item.id} className="flex justify-between items-start text-sm">
-              <div>
-                <Link to={`${basePath}/${item.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">
-                  {item.name}
-                </Link>
-                {item.start_date && (
-                  <p className="text-warm-400 text-xs mt-0.5">
-                    {item.start_date}{item.end_date ? ` — ${item.end_date}` : ''}
-                  </p>
-                )}
-              </div>
-              <span className="font-medium text-warm-800 whitespace-nowrap ml-2">
-                {item.cost != null ? fmt$(item.cost) : '—'}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+      <div className="h-2 bg-warm-100 rounded-full overflow-hidden">
+        <div className="h-full bg-accent-500 rounded-full" style={{ width: `${pct}%` }} />
+      </div>
+    </li>
   );
 }
 
@@ -73,18 +40,17 @@ export default function ReportsPage() {
     return () => { stale = true; };
   }, [year]);
 
+  const catMax = report ? Math.max(...report.by_category.map(c => c.total), 1) : 1;
+  const provMax = report ? Math.max(...report.by_provider.map(p => p.total), 1) : 1;
+  const projMax = report ? Math.max(...report.by_project.map(p => p.total), 1) : 1;
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-heading text-2xl text-warm-900">Annual Expense Report</h1>
-        <select
-          value={year}
-          onChange={e => setYear(Number(e.target.value))}
-          className="rounded-lg border border-warm-300 bg-white px-3 py-2 text-sm text-warm-800 focus:outline-none focus:ring-2 focus:ring-accent-500"
-        >
-          {years.map(y => (
-            <option key={y} value={y}>{y}</option>
-          ))}
+        <select value={year} onChange={e => setYear(Number(e.target.value))}
+          className="rounded-lg border border-warm-300 bg-white px-3 py-2 text-sm text-warm-800 focus:outline-none focus:ring-2 focus:ring-accent-500">
+          {years.map(y => <option key={y} value={y}>{y}</option>)}
         </select>
       </div>
 
@@ -95,95 +61,77 @@ export default function ReportsPage() {
           <div className="bg-warm-900 text-white rounded-xl p-6 mb-6">
             <p className="text-warm-400 text-sm font-medium mb-1">Grand Total for {report.year}</p>
             <p className="font-heading text-3xl">{fmt$(report.grand_total)}</p>
+            <p className="text-warm-400 text-xs mt-2">
+              Log {fmt$(report.log_total)} · Contracts {fmt$(report.contracts_total)}
+            </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Services -- uses a table layout, so rendered directly */}
-            <div className="bg-white rounded-xl border border-warm-200 p-6 hover:border-warm-300 transition-colors">
+            <div className="bg-white rounded-xl border border-warm-200 p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-heading text-lg text-warm-800">Services</h2>
-                <span className="font-heading text-lg text-warm-900">{fmt$(report.services_total)}</span>
+                <h2 className="font-heading text-lg text-warm-800">By Category</h2>
+                <span className="font-heading text-lg text-warm-900">{fmt$(report.log_total)}</span>
               </div>
-              {report.services_breakdown.length === 0 ? (
-                <p className="text-warm-400 text-sm italic">No service bills this year.</p>
+              {report.by_category.length === 0 ? (
+                <p className="text-warm-400 text-sm italic">No logged expenses this year.</p>
               ) : (
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-warm-500 text-left border-b border-warm-100">
-                      <th className="pb-2 font-medium">Provider</th>
-                      <th className="pb-2 font-medium text-right">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {report.services_breakdown.map(s => (
-                      <tr key={s.service_id} className="border-b border-warm-50">
-                        <td className="py-2">
-                          <Link to={`/services/${s.service_id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">
-                            {s.provider_name}
-                          </Link>
-                          <span className="text-warm-400 ml-1 text-xs">({s.service_type})</span>
-                        </td>
-                        <td className="py-2 text-right text-warm-800 font-medium">{fmt$(s.total)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <ul className="space-y-3">
+                  {report.by_category.map(c => (
+                    <BreakdownBar key={c.category} label={c.category} total={c.total} max={catMax} />
+                  ))}
+                </ul>
               )}
             </div>
 
-            <ExpenseCard
-              title="Projects"
-              total={report.projects_total}
-              emptyMessage="No project expenses this year."
-              basePath="/projects"
-              items={report.projects.map(p => ({
-                id: p.id, name: p.name, cost: p.actual_cost,
-                start_date: p.start_date, end_date: p.end_date,
-              }))}
-            />
-
-            <ExpenseCard
-              title="Contracts"
-              total={report.contracts_total}
-              emptyMessage="No contract expenses this year."
-              basePath="/contracts"
-              items={report.contracts.map(c => ({
-                id: c.id, name: c.name, cost: c.cost,
-                start_date: c.start_date, end_date: c.end_date,
-              }))}
-            />
-
-            {/* Maintenance */}
-            <div className="bg-white rounded-xl border border-warm-200 p-6 hover:border-warm-300 transition-colors">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-heading text-lg text-warm-800">Maintenance</h2>
-                <span className="font-heading text-lg text-warm-900">{fmt$(report.maintenance_total)}</span>
-              </div>
-              {report.maintenance_items.length === 0 ? (
-                <p className="text-warm-400 text-sm italic">No maintenance expenses this year.</p>
+            <div className="bg-white rounded-xl border border-warm-200 p-6">
+              <h2 className="font-heading text-lg text-warm-800 mb-4">By Provider</h2>
+              {report.by_provider.length === 0 ? (
+                <p className="text-warm-400 text-sm italic">No provider expenses this year.</p>
               ) : (
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-warm-500 text-left border-b border-warm-100">
-                      <th className="pb-2 font-medium">Task</th>
-                      <th className="pb-2 font-medium">Date</th>
-                      <th className="pb-2 font-medium text-right">Cost</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {report.maintenance_items.map((item, i) => (
-                      <tr key={i} className="border-b border-warm-50">
-                        <td className="py-2">
-                          <Link to={`/maintenance/${item.task_id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">
-                            {item.task_name}
-                          </Link>
-                        </td>
-                        <td className="py-2 text-warm-500 text-xs">{parseLocalDate(item.completed_at).toLocaleDateString()}</td>
-                        <td className="py-2 text-right text-warm-800 font-medium">{fmt$(item.cost)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <ul className="space-y-3">
+                  {report.by_provider.map(p => (
+                    <BreakdownBar key={p.provider_id} label={p.provider_name} total={p.total} max={provMax} to={`/providers/${p.provider_id}`} />
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="bg-white rounded-xl border border-warm-200 p-6">
+              <h2 className="font-heading text-lg text-warm-800 mb-4">By Project</h2>
+              {report.by_project.length === 0 ? (
+                <p className="text-warm-400 text-sm italic">No project-tagged expenses this year.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {report.by_project.map(p => (
+                    <BreakdownBar key={p.project_id} label={p.project_name} total={p.total} max={projMax} to={`/projects/${p.project_id}`} />
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="bg-white rounded-xl border border-warm-200 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-heading text-lg text-warm-800">Contracts</h2>
+                <span className="font-heading text-lg text-warm-900">{fmt$(report.contracts_total)}</span>
+              </div>
+              {report.contracts.length === 0 ? (
+                <p className="text-warm-400 text-sm italic">No contract expenses this year.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {report.contracts.map(c => (
+                    <li key={c.id} className="flex justify-between items-start text-sm">
+                      <div>
+                        <Link to={`/contracts/${c.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{c.name}</Link>
+                        {c.start_date && (
+                          <p className="text-warm-400 text-xs mt-0.5">
+                            {parseLocalDate(c.start_date).toLocaleDateString()}{c.end_date ? ` — ${parseLocalDate(c.end_date).toLocaleDateString()}` : ''}
+                          </p>
+                        )}
+                      </div>
+                      <span className="font-medium text-warm-800 whitespace-nowrap ml-2">{c.cost != null ? fmt$(c.cost) : '—'}</span>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
           </div>

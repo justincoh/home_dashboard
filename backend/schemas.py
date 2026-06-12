@@ -12,48 +12,23 @@ class SearchResult(BaseModel):
     subtitle: Optional[str] = None
 
 
-# --- Reports ---
-class ServiceExpenseBreakdown(BaseModel):
-    service_id: int
-    provider_name: str
-    service_type: str
-    total: float
-
-
-class MaintenanceExpenseItem(BaseModel):
-    task_id: int
-    task_name: str
-    completed_at: date
-    cost: float
-
-
-class AnnualReport(BaseModel):
-    year: int
-    services_total: float
-    services_breakdown: list[ServiceExpenseBreakdown]
-    projects_total: float
-    projects: list["ProjectOut"]
-    contracts_total: float
-    contracts: list["ContractOut"]
-    maintenance_total: float
-    maintenance_items: list[MaintenanceExpenseItem]
-    grand_total: float
-
-
-# --- Vendor ---
-class VendorBase(BaseModel):
+# --- Provider ---
+class ProviderBase(BaseModel):
     name: str
+    service_type: str
     phone: Optional[str] = None
     email: Optional[str] = None
-    service_type: str
+    account_number: Optional[str] = None
+    contract_terms: Optional[str] = None
+    notes: Optional[str] = None
 
-class VendorCreate(VendorBase):
+class ProviderCreate(ProviderBase):
     pass
 
-class VendorUpdate(VendorBase):
+class ProviderUpdate(ProviderBase):
     pass
 
-class VendorOut(VendorBase):
+class ProviderOut(ProviderBase):
     id: int
     model_config = {"from_attributes": True}
 
@@ -81,7 +56,7 @@ class ProjectOut(ProjectBase):
 
 # --- Quote ---
 class QuoteBase(BaseModel):
-    vendor_id: int
+    provider_id: int
     project_id: Optional[int] = None
     amount: float
     date_received: date
@@ -97,7 +72,7 @@ class QuoteOut(QuoteBase):
     model_config = {"from_attributes": True}
 
 class QuoteDetail(QuoteOut):
-    vendor: Optional[VendorOut] = None
+    provider: Optional[ProviderOut] = None
     project: Optional[ProjectOut] = None
     model_config = {"from_attributes": True}
 
@@ -106,7 +81,7 @@ class QuoteDetail(QuoteOut):
 class ContractBase(BaseModel):
     name: str
     type: ContractType
-    vendor_id: Optional[int] = None
+    provider_id: Optional[int] = None
     start_date: date
     end_date: Optional[date] = None
     cost: Optional[float] = None
@@ -124,75 +99,66 @@ class ContractOut(ContractBase):
     model_config = {"from_attributes": True}
 
 class ContractDetail(ContractOut):
-    vendor: Optional[VendorOut] = None
+    provider: Optional[ProviderOut] = None
     model_config = {"from_attributes": True}
 
 
-# --- Maintenance ---
-class MaintenanceBase(BaseModel):
-    name: str
-    frequency: str = ""
-    recurring: bool = True
-    last_completed: Optional[date] = None
-    next_due: Optional[date] = None
-
-class MaintenanceCreate(MaintenanceBase):
-    pass
-
-class MaintenanceUpdate(MaintenanceBase):
-    pass
-
-class MaintenanceOut(MaintenanceBase):
-    id: int
-    model_config = {"from_attributes": True}
-
-
-class MaintenanceCompleteBody(BaseModel):
-    cost: Optional[float] = None
-
-
-# --- Service ---
-class ServiceBase(BaseModel):
-    provider_name: str
-    account_number: Optional[str] = None
-    contact_info: Optional[str] = None
-    contract_terms: Optional[str] = None
-    service_type: str
-    notes: Optional[str] = None
-
-class ServiceCreate(ServiceBase):
-    pass
-
-class ServiceUpdate(ServiceBase):
-    pass
-
-class ServiceOut(ServiceBase):
-    id: int
-    model_config = {"from_attributes": True}
-
-
-# --- Bill ---
-class BillBase(BaseModel):
-    entity_type: str
-    entity_id: int
-    bill_date: date
+# --- Log Entry ---
+class LogEntryBase(BaseModel):
+    entry_date: Optional[date] = None
+    title: str
+    description: Optional[str] = None
+    category: Optional[str] = None
+    provider_id: Optional[int] = None
+    project_id: Optional[int] = None
     amount: Optional[float] = None
     usage_value: Optional[float] = None
     usage_unit: Optional[str] = None
+    recurring: bool = False
+    frequency: Optional[str] = None
+    next_due: Optional[date] = None
 
-class BillCreate(BillBase):
+class LogEntryCreate(LogEntryBase):
     pass
 
-class BillUpdate(BillBase):
+class LogEntryUpdate(LogEntryBase):
     pass
 
-class BillOut(BillBase):
+class LogEntryOut(LogEntryBase):
     id: int
+    created_at: Optional[datetime] = None
+    model_config = {"from_attributes": True}
+
+class LogEntryDetail(LogEntryOut):
+    provider: Optional[ProviderOut] = None
+    project: Optional[ProjectOut] = None
     model_config = {"from_attributes": True}
 
 
-class DashboardBillOut(BillOut):
-    entity_name: str
+# --- Reports ---
+class CategoryBreakdown(BaseModel):
+    category: str
+    total: float
+
+class ProviderBreakdown(BaseModel):
+    provider_id: int
+    provider_name: str
+    total: float
+
+class ProjectBreakdown(BaseModel):
+    project_id: int
+    project_name: str
+    total: float
+
+class AnnualReport(BaseModel):
+    year: int
+    log_total: float
+    by_category: list[CategoryBreakdown]
+    by_provider: list[ProviderBreakdown]
+    by_project: list[ProjectBreakdown]
+    contracts_total: float
+    contracts: list[ContractOut]
+    grand_total: float
 
 
 # --- File Attachment ---
@@ -208,8 +174,11 @@ class FileAttachmentOut(BaseModel):
 
 
 # --- Dashboard ---
+class DashboardLogEntry(LogEntryOut):
+    provider_name: Optional[str] = None
+
 class DashboardData(BaseModel):
-    upcoming_maintenance: list[MaintenanceOut]
+    upcoming_reminders: list[LogEntryOut]
     active_projects: list[ProjectOut]
     expiring_contracts: list[ContractOut]
-    recent_bills: list[DashboardBillOut]
+    recent_entries: list[DashboardLogEntry]

@@ -27,8 +27,8 @@ export default function ContractDetailPage() {
             <div className="capitalize">{contract.type}</div>
           </div>
           <div>
-            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Vendor</div>
-            <div>{contract.vendor ? <Link to={`/vendors/${contract.vendor.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{contract.vendor.name}</Link> : '—'}</div>
+            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Provider</div>
+            <div>{contract.provider ? <Link to={`/providers/${contract.provider.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{contract.provider.name}</Link> : '—'}</div>
           </div>
           <div>
             <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Start Date</div>

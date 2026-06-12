@@ -31,8 +31,8 @@ export default function QuoteDetailPage() {
             <div>{parseLocalDate(quote.date_received).toLocaleDateString()}</div>
           </div>
           <div>
-            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Vendor</div>
-            <div>{quote.vendor ? <Link to={`/vendors/${quote.vendor.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{quote.vendor.name}</Link> : '—'}</div>
+            <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Provider</div>
+            <div>{quote.provider ? <Link to={`/providers/${quote.provider.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{quote.provider.name}</Link> : '—'}</div>
           </div>
           <div>
             <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Project</div>
