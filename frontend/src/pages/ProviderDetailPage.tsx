@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
 import type { Provider, LogEntry, Quote, Contract } from '../api/client';
 import { parseLocalDate } from '../utils/dates';
+import Modal from '../components/Modal';
 
 export default function ProviderDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -10,6 +11,13 @@ export default function ProviderDetailPage() {
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [contracts, setContracts] = useState<Contract[]>([]);
+  const [showEdit, setShowEdit] = useState(false);
+  const [form, setForm] = useState({
+    name: '', service_type: '', phone: '', email: '',
+    account_number: '', contract_terms: '', notes: '',
+  });
+
+  const loadProvider = () => api.getProvider(Number(id)).then(setProvider);
 
   useEffect(() => {
     if (!id) return;
@@ -24,11 +32,50 @@ export default function ProviderDetailPage() {
 
   const total = entries.reduce((s, e) => s + (e.amount ?? 0), 0);
   const hasUsage = entries.some(e => e.usage_value != null);
+  const inputCls = 'border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50 placeholder:text-warm-400';
+
+  const startEdit = () => {
+    setForm({
+      name: provider.name, service_type: provider.service_type,
+      phone: provider.phone || '', email: provider.email || '',
+      account_number: provider.account_number || '',
+      contract_terms: provider.contract_terms || '', notes: provider.notes || '',
+    });
+    setShowEdit(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await api.updateProvider(provider.id, {
+      name: form.name, service_type: form.service_type,
+      phone: form.phone || null, email: form.email || null,
+      account_number: form.account_number || null,
+      contract_terms: form.contract_terms || null, notes: form.notes || null,
+    });
+    setShowEdit(false);
+    loadProvider();
+  };
 
   return (
     <div>
       <Link to="/providers" className="text-warm-500 hover:text-warm-700 text-sm font-medium transition-colors">&larr; Back to Providers</Link>
-      <h1 className="font-heading text-2xl text-warm-900 mt-2 mb-4">{provider.name}</h1>
+      <div className="flex items-center justify-between mt-2 mb-4">
+        <h1 className="font-heading text-2xl text-warm-900">{provider.name}</h1>
+        <button onClick={startEdit} className="text-accent-700 hover:text-accent-900 text-sm font-medium">Edit</button>
+      </div>
+
+      <Modal open={showEdit} onClose={() => setShowEdit(false)} title="Edit Provider">
+        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
+          <input required placeholder="Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className={inputCls} />
+          <input required placeholder="Type (electric, lawn care…)" value={form.service_type} onChange={e => setForm({ ...form, service_type: e.target.value })} className={inputCls} />
+          <input placeholder="Phone" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className={inputCls} />
+          <input placeholder="Email" type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className={inputCls} />
+          <input placeholder="Account number" value={form.account_number} onChange={e => setForm({ ...form, account_number: e.target.value })} className={`${inputCls} col-span-2`} />
+          <textarea placeholder="Contract terms" value={form.contract_terms} onChange={e => setForm({ ...form, contract_terms: e.target.value })} className={`${inputCls} col-span-2`} rows={2} />
+          <textarea placeholder="Notes" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} className={`${inputCls} col-span-2`} rows={2} />
+          <button type="submit" className="col-span-2 bg-sage-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-sage-800 text-sm">Update</button>
+        </form>
+      </Modal>
 
       <div className="bg-white rounded-xl border border-warm-200 p-6 mb-8">
         <div className="grid grid-cols-2 gap-4 text-sm">
