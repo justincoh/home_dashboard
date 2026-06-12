@@ -23,6 +23,7 @@ export default function ProviderDetailPage() {
   if (!provider) return <p className="text-warm-400 font-medium animate-pulse">Loading...</p>;
 
   const total = entries.reduce((s, e) => s + (e.amount ?? 0), 0);
+  const hasUsage = entries.some(e => e.usage_value != null);
 
   return (
     <div>
@@ -63,7 +64,8 @@ export default function ProviderDetailPage() {
               <tr>
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Date</th>
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Title</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Usage</th>
+                {hasUsage && <th className="text-left px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Usage</th>}
+                {hasUsage && <th className="text-right px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">$ / Unit</th>}
                 <th className="text-right px-5 py-3.5 text-xs font-semibold text-warm-500 uppercase tracking-wider">Amount</th>
               </tr>
             </thead>
@@ -72,7 +74,8 @@ export default function ProviderDetailPage() {
                 <tr key={e.id} className="hover:bg-warm-50 transition-colors">
                   <td className="px-5 py-4 whitespace-nowrap text-warm-600">{e.entry_date ? parseLocalDate(e.entry_date).toLocaleDateString() : '—'}</td>
                   <td className="px-5 py-4"><Link to={`/log/${e.id}`} className="text-accent-800 hover:text-accent-600 font-medium transition-colors">{e.title}</Link></td>
-                  <td className="px-5 py-4">{e.usage_value != null ? `${e.usage_value} ${e.usage_unit || ''}` : '—'}</td>
+                  {hasUsage && <td className="px-5 py-4">{e.usage_value != null ? `${e.usage_value} ${e.usage_unit || ''}` : '—'}</td>}
+                  {hasUsage && <td className="px-5 py-4 text-right">{e.usage_value && e.amount != null ? `${fmt$(e.amount / e.usage_value, 3)}${e.usage_unit ? ` / ${e.usage_unit}` : ''}` : '—'}</td>}
                   <td className="px-5 py-4 text-right font-medium">{e.amount != null ? fmt$(e.amount) : '—'}</td>
                 </tr>
               ))}
