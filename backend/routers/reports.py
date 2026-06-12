@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, extract
 from database import get_db
-from models import LogEntry, Provider, Project, Contract
+from models import LogEntry, Provider, Project, Contract, Category
 from schemas import (
     AnnualReport,
     CategoryBreakdown,
@@ -28,9 +28,10 @@ def get_annual_report(year: int = Query(default_factory=lambda: date.today().yea
 
     cat_rows = (
         db.query(
-            func.coalesce(LogEntry.category, "uncategorized").label("category"),
+            func.coalesce(Category.name, "uncategorized").label("category"),
             func.sum(LogEntry.amount).label("total"),
         )
+        .outerjoin(Category, LogEntry.category_id == Category.id)
         .filter(in_year, has_amount)
         .group_by("category")
         .order_by(func.sum(LogEntry.amount).desc())

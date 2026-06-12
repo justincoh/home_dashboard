@@ -34,6 +34,15 @@ class Provider(Base):
     log_entries = relationship("LogEntry", back_populates="provider")
 
 
+class Category(Base):
+    """Table-backed log-entry category (electric, maintenance, etc.)."""
+    __tablename__ = "categories"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False, unique=True)
+
+    log_entries = relationship("LogEntry", back_populates="category")
+
+
 class Project(Base):
     __tablename__ = "projects"
     id = Column(Integer, primary_key=True, index=True)
@@ -86,7 +95,7 @@ class LogEntry(Base):
     entry_date = Column(Date, nullable=True)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=True)
-    category = Column(String, nullable=True)
+    category_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
     provider_id = Column(Integer, ForeignKey("providers.id"), nullable=True)
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
     amount = Column(Numeric(10, 2), nullable=True)
@@ -97,6 +106,7 @@ class LogEntry(Base):
     next_due = Column(Date, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    category = relationship("Category", back_populates="log_entries")
     provider = relationship("Provider", back_populates="log_entries")
     project = relationship("Project", back_populates="log_entries")
 

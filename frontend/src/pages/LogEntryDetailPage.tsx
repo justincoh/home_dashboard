@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
-import type { LogEntry, Provider, Project, LogEntryInput } from '../api/client';
+import type { LogEntry, Provider, Project, Category, LogEntryInput } from '../api/client';
 import { parseLocalDate } from '../utils/dates';
 import FileAttachments from '../components/FileAttachments';
 import Modal from '../components/Modal';
@@ -12,10 +12,10 @@ export default function LogEntryDetailPage() {
   const [entry, setEntry] = useState<LogEntry | null>(null);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [showEdit, setShowEdit] = useState(false);
   const [form, setForm] = useState({
-    entry_date: '', title: '', amount: '', provider_id: '', category: '', description: '',
+    entry_date: '', title: '', amount: '', provider_id: '', category_id: '', description: '',
     project_id: '', usage_value: '', usage_unit: '', recurring: false, frequency: '', next_due: '',
   });
 
@@ -36,7 +36,7 @@ export default function LogEntryDetailPage() {
       title: entry.title,
       amount: entry.amount != null ? String(entry.amount) : '',
       provider_id: entry.provider_id ? String(entry.provider_id) : '',
-      category: entry.category || '',
+      category_id: entry.category_id ? String(entry.category_id) : '',
       description: entry.description || '',
       project_id: entry.project_id ? String(entry.project_id) : '',
       usage_value: entry.usage_value != null ? String(entry.usage_value) : '',
@@ -54,7 +54,7 @@ export default function LogEntryDetailPage() {
       entry_date: form.entry_date || null,
       title: form.title,
       description: form.description || null,
-      category: form.category || null,
+      category_id: form.category_id ? Number(form.category_id) : null,
       provider_id: form.provider_id ? Number(form.provider_id) : null,
       project_id: form.project_id ? Number(form.project_id) : null,
       amount: form.amount ? Number(form.amount) : null,
@@ -73,6 +73,18 @@ export default function LogEntryDetailPage() {
     if (!confirm('Delete this entry and its attachments?')) return;
     await api.deleteLogEntry(Number(id));
     navigate('/');
+  };
+
+  const addCategory = async () => {
+    const name = window.prompt('New category name')?.trim();
+    if (!name) return;
+    try {
+      const cat = await api.createCategory(name);
+      setCategories(await api.listCategories());
+      setForm(f => ({ ...f, category_id: String(cat.id) }));
+    } catch {
+      alert('Could not create category (maybe it already exists).');
+    }
   };
 
   if (!entry) return <p className="text-warm-400 font-medium animate-pulse">Loading...</p>;
@@ -104,7 +116,7 @@ export default function LogEntryDetailPage() {
           </div>
           <div>
             <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Category</div>
-            <div>{entry.category || '—'}</div>
+            <div>{entry.category?.name || '—'}</div>
           </div>
           <div>
             <div className="text-warm-500 text-xs font-semibold uppercase tracking-wider mb-1">Provider</div>
@@ -137,8 +149,13 @@ export default function LogEntryDetailPage() {
             <option value="">No provider</option>
             {providers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
-          <input list="cat-edit" placeholder="Category" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className={inputCls} />
-          <datalist id="cat-edit">{categories.map(c => <option key={c} value={c} />)}</datalist>
+          <select value={form.category_id}
+            onChange={e => { if (e.target.value === '__new__') addCategory(); else setForm({ ...form, category_id: e.target.value }); }}
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50">
+            <option value="">No category</option>
+            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="__new__">+ New category…</option>
+          </select>
           <select value={form.project_id} onChange={e => setForm({ ...form, project_id: e.target.value })} className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50">
             <option value="">No project</option>
             {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}

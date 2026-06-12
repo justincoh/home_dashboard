@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from database import get_db
-from models import Provider, Project, Contract, LogEntry
+from models import Provider, Project, Contract, LogEntry, Category
 from schemas import SearchResult
 
 router = APIRouter()
@@ -55,12 +55,16 @@ def search(q: str = Query(min_length=2), db: Session = Depends(get_db)):
 
     entries = (
         db.query(LogEntry)
-        .filter(LogEntry.title.ilike(term) | LogEntry.category.ilike(term))
+        .outerjoin(Category, LogEntry.category_id == Category.id)
+        .filter(LogEntry.title.ilike(term) | Category.name.ilike(term))
         .limit(LIMIT_PER_TYPE)
         .all()
     )
     results.extend(
-        SearchResult(entity_type="log_entry", id=e.id, name=e.title, subtitle=e.category)
+        SearchResult(
+            entity_type="log_entry", id=e.id, name=e.title,
+            subtitle=e.category.name if e.category else None,
+        )
         for e in entries
     )
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, fmt$ } from '../api/client';
-import type { LogEntry, Provider, Project, LogEntryInput } from '../api/client';
+import type { LogEntry, Provider, Project, Category, LogEntryInput } from '../api/client';
 import { parseLocalDate } from '../utils/dates';
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -11,7 +11,7 @@ const emptyForm = () => ({
   title: '',
   amount: '',
   provider_id: '',
-  category: '',
+  category_id: '',
   description: '',
   project_id: '',
   usage_value: '',
@@ -25,7 +25,7 @@ export default function LogPage() {
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const [form, setForm] = useState(emptyForm());
   const [file, setFile] = useState<File | null>(null);
@@ -38,13 +38,27 @@ export default function LogPage() {
   const [fYear, setFYear] = useState('');
 
   const providerName = (id: number | null) => providers.find(p => p.id === id)?.name ?? null;
+  const categoryName = (id: number | null) => categories.find(c => c.id === id)?.name ?? null;
 
   const loadEntries = () => {
-    const params: { category?: string; provider_id?: number; year?: number } = {};
-    if (fCategory) params.category = fCategory;
+    const params: { category_id?: number; provider_id?: number; year?: number } = {};
+    if (fCategory) params.category_id = Number(fCategory);
     if (fProvider) params.provider_id = Number(fProvider);
     if (fYear) params.year = Number(fYear);
     api.listLogEntries(params).then(setEntries);
+  };
+
+  const addCategory = async () => {
+    const name = window.prompt('New category name')?.trim();
+    if (!name) return;
+    try {
+      const cat = await api.createCategory(name);
+      const list = await api.listCategories();
+      setCategories(list);
+      setForm(f => ({ ...f, category_id: String(cat.id) }));
+    } catch {
+      alert('Could not create category (maybe it already exists).');
+    }
   };
 
   useEffect(() => {
@@ -63,7 +77,7 @@ export default function LogPage() {
         entry_date: form.entry_date || null,
         title: form.title,
         description: form.description || null,
-        category: form.category || null,
+        category_id: form.category_id ? Number(form.category_id) : null,
         provider_id: form.provider_id ? Number(form.provider_id) : null,
         project_id: form.project_id ? Number(form.project_id) : null,
         amount: form.amount ? Number(form.amount) : null,
@@ -117,12 +131,13 @@ export default function LogPage() {
             <option value="">Provider…</option>
             {providers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
-          <input list="category-options" placeholder="Category" value={form.category}
-            onChange={e => setForm({ ...form, category: e.target.value })}
-            className={inputCls} />
-          <datalist id="category-options">
-            {categories.map(c => <option key={c} value={c} />)}
-          </datalist>
+          <select value={form.category_id}
+            onChange={e => { if (e.target.value === '__new__') addCategory(); else setForm({ ...form, category_id: e.target.value }); }}
+            className="border border-warm-300 rounded-lg px-3.5 py-2.5 text-sm text-warm-800 bg-warm-50">
+            <option value="">Category…</option>
+            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="__new__">+ New category…</option>
+          </select>
         </div>
 
         {more && (
@@ -176,7 +191,7 @@ export default function LogPage() {
           <select value={fCategory} onChange={e => setFCategory(e.target.value)}
             className="border border-warm-300 rounded-lg px-3 py-1.5 text-sm text-warm-800 bg-white">
             <option value="">All categories</option>
-            {categories.map(c => <option key={c} value={c}>{c}</option>)}
+            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
           <select value={fProvider} onChange={e => setFProvider(e.target.value)}
             className="border border-warm-300 rounded-lg px-3 py-1.5 text-sm text-warm-800 bg-white">
@@ -226,7 +241,7 @@ export default function LogPage() {
                     <Link to={`/providers/${e.provider_id}`} className="text-accent-800 hover:text-accent-600 transition-colors">{providerName(e.provider_id)}</Link>
                   ) : '—'}
                 </td>
-                <td className="px-5 py-4">{e.category || '—'}</td>
+                <td className="px-5 py-4">{categoryName(e.category_id) || '—'}</td>
                 <td className="px-5 py-4 text-right font-medium">{e.amount != null ? fmt$(e.amount) : '—'}</td>
               </tr>
             ))}

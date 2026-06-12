@@ -12,6 +12,21 @@ class SearchResult(BaseModel):
     subtitle: Optional[str] = None
 
 
+# --- Category ---
+class CategoryBase(BaseModel):
+    name: str
+
+class CategoryCreate(CategoryBase):
+    pass
+
+class CategoryUpdate(CategoryBase):
+    pass
+
+class CategoryOut(CategoryBase):
+    id: int
+    model_config = {"from_attributes": True}
+
+
 # --- Provider ---
 class ProviderBase(BaseModel):
     name: str
@@ -108,7 +123,7 @@ class LogEntryBase(BaseModel):
     entry_date: Optional[date] = None
     title: str
     description: Optional[str] = None
-    category: Optional[str] = None
+    category_id: Optional[int] = None
     provider_id: Optional[int] = None
     project_id: Optional[int] = None
     amount: Optional[float] = None
@@ -130,6 +145,7 @@ class LogEntryOut(LogEntryBase):
     model_config = {"from_attributes": True}
 
 class LogEntryDetail(LogEntryOut):
+    category: Optional[CategoryOut] = None
     provider: Optional[ProviderOut] = None
     project: Optional[ProjectOut] = None
     model_config = {"from_attributes": True}

@@ -10,6 +10,7 @@ import ContractsPage from './pages/ContractsPage';
 import ContractDetailPage from './pages/ContractDetailPage';
 import QuotesPage from './pages/QuotesPage';
 import QuoteDetailPage from './pages/QuoteDetailPage';
+import CategoriesPage from './pages/CategoriesPage';
 import ReportsPage from './pages/ReportsPage';
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/contracts/:id" element={<ContractDetailPage />} />
           <Route path="/quotes" element={<QuotesPage />} />
           <Route path="/quotes/:id" element={<QuoteDetailPage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/reports" element={<ReportsPage />} />
         </Route>
       </Routes>

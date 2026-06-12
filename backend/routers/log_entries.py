@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.get("", response_model=list[LogEntryOut])
 def list_log_entries(
-    category: str | None = None,
+    category_id: int | None = None,
     provider_id: int | None = None,
     project_id: int | None = None,
     year: int | None = None,
@@ -18,8 +18,8 @@ def list_log_entries(
     db: Session = Depends(get_db),
 ):
     query = db.query(LogEntry)
-    if category:
-        query = query.filter(LogEntry.category == category)
+    if category_id:
+        query = query.filter(LogEntry.category_id == category_id)
     if provider_id:
         query = query.filter(LogEntry.provider_id == provider_id)
     if project_id:
@@ -33,23 +33,15 @@ def list_log_entries(
     return query.all()
 
 
-@router.get("/categories", response_model=list[str])
-def list_categories(db: Session = Depends(get_db)):
-    rows = (
-        db.query(LogEntry.category)
-        .filter(LogEntry.category.isnot(None), LogEntry.category != "")
-        .distinct()
-        .order_by(LogEntry.category)
-        .all()
-    )
-    return [r[0] for r in rows]
-
-
 @router.get("/{entry_id}", response_model=LogEntryDetail)
 def get_log_entry(entry_id: int, db: Session = Depends(get_db)):
     entry = (
         db.query(LogEntry)
-        .options(joinedload(LogEntry.provider), joinedload(LogEntry.project))
+        .options(
+            joinedload(LogEntry.category),
+            joinedload(LogEntry.provider),
+            joinedload(LogEntry.project),
+        )
         .filter(LogEntry.id == entry_id)
         .first()
     )

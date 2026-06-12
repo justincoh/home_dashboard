@@ -18,6 +18,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 // Types
+export interface Category {
+  id: number;
+  name: string;
+}
+
 export interface Provider {
   id: number;
   name: string;
@@ -68,7 +73,7 @@ export interface LogEntry {
   entry_date: string | null;
   title: string;
   description: string | null;
-  category: string | null;
+  category_id: number | null;
   provider_id: number | null;
   project_id: number | null;
   amount: number | null;
@@ -78,11 +83,12 @@ export interface LogEntry {
   frequency: string | null;
   next_due: string | null;
   created_at: string | null;
+  category?: Category;
   provider?: Provider;
   project?: Project;
 }
 
-export type LogEntryInput = Omit<LogEntry, 'id' | 'created_at' | 'provider' | 'project'>;
+export type LogEntryInput = Omit<LogEntry, 'id' | 'created_at' | 'category' | 'provider' | 'project'>;
 
 export interface FileAttachment {
   id: number;
@@ -180,9 +186,9 @@ export const api = {
   deleteContract: (id: number) => request<void>(`/contracts/${id}`, { method: 'DELETE' }),
 
   // Log entries
-  listLogEntries: (params?: { category?: string; provider_id?: number; project_id?: number; year?: number; limit?: number }) => {
+  listLogEntries: (params?: { category_id?: number; provider_id?: number; project_id?: number; year?: number; limit?: number }) => {
     const qs = new URLSearchParams();
-    if (params?.category) qs.set('category', params.category);
+    if (params?.category_id) qs.set('category_id', String(params.category_id));
     if (params?.provider_id) qs.set('provider_id', String(params.provider_id));
     if (params?.project_id) qs.set('project_id', String(params.project_id));
     if (params?.year) qs.set('year', String(params.year));
@@ -194,7 +200,12 @@ export const api = {
   createLogEntry: (data: LogEntryInput) => request<LogEntry>('/log-entries', { method: 'POST', body: JSON.stringify(data) }),
   updateLogEntry: (id: number, data: LogEntryInput) => request<LogEntry>(`/log-entries/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteLogEntry: (id: number) => request<void>(`/log-entries/${id}`, { method: 'DELETE' }),
-  listCategories: () => request<string[]>('/log-entries/categories'),
+
+  // Categories
+  listCategories: () => request<Category[]>('/categories'),
+  createCategory: (name: string) => request<Category>('/categories', { method: 'POST', body: JSON.stringify({ name }) }),
+  updateCategory: (id: number, name: string) => request<Category>(`/categories/${id}`, { method: 'PUT', body: JSON.stringify({ name }) }),
+  deleteCategory: (id: number) => request<void>(`/categories/${id}`, { method: 'DELETE' }),
 
   // Reports
   getAnnualReport: (year: number) => request<AnnualReport>(`/reports/annual?year=${year}`),
