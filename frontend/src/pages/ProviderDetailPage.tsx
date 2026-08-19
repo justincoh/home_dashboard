@@ -4,6 +4,7 @@ import { api, fmt$ } from '../api/client';
 import type { Provider, LogEntry, Quote, Contract, FileAttachment } from '../api/client';
 import { parseLocalDate } from '../utils/dates';
 import Modal from '../components/Modal';
+import MonthlySpendChart from '../components/MonthlySpendChart';
 
 export default function ProviderDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -109,6 +110,8 @@ export default function ProviderDetailPage() {
         {provider.contract_terms && <p className="text-warm-600 leading-relaxed border-t border-warm-100 pt-4 mt-4">{provider.contract_terms}</p>}
         {provider.notes && <p className="text-warm-500 text-sm leading-relaxed mt-2">{provider.notes}</p>}
       </div>
+
+      <MonthlySpendChart entries={entries} />
 
       <div className="flex items-center justify-between mb-2">
         <h2 className="font-heading text-lg text-warm-800">Log History</h2>
