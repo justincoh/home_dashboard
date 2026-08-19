@@ -41,6 +41,7 @@ Manual startup:
 - **Enums**: `ProjectStatus` (planned/in_progress/done), `ContractType` (contract/warranty)
 - **Backend routers**: All follow the same pattern — list, get, create, update, delete. Status 201 for creates, 204 for deletes
 - **LogEntry**: the central object — one thing that happened on a date (`entry_date`, nullable for pure reminders). Optional `amount` (cost-free events like "cleaned dryer vent" are a LogEntry with `amount` NULL), `category_id`, `provider_id`, `project_id`, `usage_value`/`usage_unit`. Replaces the former `Service`/`MaintenanceTask`/`Bill` trio. Router `backend/routers/log_entries.py`, home page `/` (`LogPage`), detail `/log/:id`. `GET /api/log-entries` filters by `category_id`/`provider_id`/`project_id`/`year`/`limit`.
+- **`usage_unit` is unnormalized free text**: unlike `Category`, nothing constrains it on write, so the same unit can appear under several spellings (`kWh` vs `kwh` existed in the data until normalized by hand). Anything that groups or compares units must do so case-insensitively — see `normUnit` in `frontend/src/components/MonthlySpendChart.tsx`. Making it a lookup table, the way categories went, is the real fix if this keeps biting.
 - **Category**: table-backed (`categories`, unique `name`), referenced by `LogEntry.category_id` (nullable). Full CRUD at `/api/categories` (`backend/routers/categories.py`), managed at `/categories` (`CategoriesPage`); log forms also offer inline "+ New category…". Deleting a category nulls (detaches) its log entries, not deletes them. Not free-text — was migrated from a free-text string column via `backend/migrate_categories.py`.
 - **Reminders are inert**: a LogEntry with `recurring=true` carries `frequency` (free-text, e.g. `6m`, `1y`) and `next_due` for display only — there is no scheduling engine and no `/complete` endpoint. Recurrence is just stored so the app is a single pane of glass; the calendar is the real reminder system.
 - **Provider**: merge of the former `Vendor` + `Service` — any company/person (utility, contractor, lawn care…). `service_type` is free-text. Referenced by `Contract.provider_id`, `Quote.provider_id`, `LogEntry.provider_id`. Router `backend/routers/providers.py`, pages `/providers`. Deleting a provider detaches (nulls) its log entries rather than deleting them.
@@ -64,7 +65,7 @@ cp house_dashboard.db house_dashboard_YYYYMMDD.db
 
 Then update the "Last backup" date below. Do not delete old backups.
 
-**Last backup: 2026-05-22**
+**Last backup: 2026-08-19**
 
 ## Python
 
