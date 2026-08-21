@@ -1,16 +1,19 @@
 #!/usr/bin/env bash
 set -e
 
-trap 'kill 0' EXIT
-
 cd "$(dirname "$0")"
 
 echo "Starting backend..."
 cd backend
 uvicorn main:app --reload &
+BACKEND_PID=$!
 
 echo "Starting frontend..."
 cd ../frontend
 npm run dev &
+FRONTEND_PID=$!
 
-wait
+echo
+echo "backend  (uvicorn) PID: $BACKEND_PID"
+echo "frontend (vite)    PID: $FRONTEND_PID"
+echo "stop with: kill $BACKEND_PID $FRONTEND_PID"
