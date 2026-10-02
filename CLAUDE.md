@@ -11,6 +11,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Backend (FastAPI): http://localhost:8000 — API docs at http://localhost:8000/docs
 - Frontend (Vite dev): http://localhost:5173 — proxies `/api` to backend
 
+Vite binds the dev server to IPv6 `::1` only, so reach it at `localhost:5173`,
+never `127.0.0.1:5173` — the latter refuses the connection even while Vite is
+running, which reads as "server is down" when probing with curl. (The `/api`
+proxy target is pinned the other way, to `127.0.0.1:8000`, so uvicorn binding
+IPv4 isn't shadowed by an empty IPv6 lookup.)
+
 Manual startup:
 - `cd backend && uvicorn main:app --reload`
 - `cd frontend && npm run dev`
@@ -65,7 +71,7 @@ cp house_dashboard.db house_dashboard_YYYYMMDD.db
 
 Then update the "Last backup" date below. Do not delete old backups.
 
-**Last backup: 2026-08-19**
+**Last backup: 2026-10-02**
 
 ## Python
 
