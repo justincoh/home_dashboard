@@ -75,6 +75,7 @@ class QuoteBase(BaseModel):
     project_id: Optional[int] = None
     amount: float
     date_received: date
+    notes: Optional[str] = None
 
 class QuoteCreate(QuoteBase):
     pass

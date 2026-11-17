@@ -65,6 +65,7 @@ class Quote(Base):
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
     amount = Column(Numeric(10, 2), nullable=False)
     date_received = Column(Date, nullable=False)
+    notes = Column(Text, nullable=True)
 
     provider = relationship("Provider", back_populates="quotes")
     project = relationship("Project", back_populates="quotes")

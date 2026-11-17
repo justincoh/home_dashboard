@@ -11,7 +11,7 @@ export default function QuotesPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
-  const [form, setForm] = useState({ provider_id: '', project_id: '', amount: '', date_received: '' });
+  const [form, setForm] = useState({ provider_id: '', project_id: '', amount: '', date_received: '', notes: '' });
   const [newProvider, setNewProvider] = useState<{ name: string; service_type: string } | null>(null);
   const [newProject, setNewProject] = useState<{ name: string; status: Project['status'] } | null>(null);
 
@@ -23,7 +23,7 @@ export default function QuotesPage() {
   useEffect(() => { load(); }, []);
 
   const resetForm = () => {
-    setForm({ provider_id: '', project_id: '', amount: '', date_received: '' });
+    setForm({ provider_id: '', project_id: '', amount: '', date_received: '', notes: '' });
     setNewProvider(null);
     setNewProject(null);
     setShowForm(false);
@@ -72,6 +72,7 @@ export default function QuotesPage() {
       project_id: form.project_id ? Number(form.project_id) : null,
       amount: Number(form.amount),
       date_received: form.date_received,
+      notes: form.notes || null,
     };
     if (editId) await api.updateQuote(editId, data);
     else await api.createQuote(data);
@@ -82,7 +83,7 @@ export default function QuotesPage() {
   const startEdit = (q: Quote) => {
     setForm({
       provider_id: String(q.provider_id), project_id: q.project_id ? String(q.project_id) : '',
-      amount: String(q.amount), date_received: q.date_received,
+      amount: String(q.amount), date_received: q.date_received, notes: q.notes || '',
     });
     setNewProvider(null);
     setNewProject(null);
@@ -175,6 +176,7 @@ export default function QuotesPage() {
           )}
           <input required placeholder="Amount" type="number" step="0.01" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} className={inputCls} />
           <input required type="date" value={form.date_received} onChange={e => setForm({ ...form, date_received: e.target.value })} className={inputCls} />
+          <textarea placeholder="Notes" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} className={`${inputCls} col-span-2`} rows={3} />
           <button type="submit" className="col-span-2 bg-sage-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-sage-800 text-sm">
             {editId ? 'Update' : 'Create'}
           </button>

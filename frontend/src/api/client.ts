@@ -51,6 +51,7 @@ export interface Quote {
   project_id: number | null;
   amount: number;
   date_received: string;
+  notes: string | null;
   provider?: Provider;
   project?: Project;
 }
