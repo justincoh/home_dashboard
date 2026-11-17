@@ -53,7 +53,7 @@ Manual startup:
 - **Provider**: merge of the former `Vendor` + `Service` — any company/person (utility, contractor, lawn care…). `service_type` is free-text. Referenced by `Contract.provider_id`, `Quote.provider_id`, `LogEntry.provider_id`. Router `backend/routers/providers.py`, pages `/providers`. Deleting a provider detaches (nulls) its log entries rather than deleting them.
 - **Polymorphic deletes (no FK cascade)**: `LogEntry` delete manually deletes its `FileAttachment` rows; do it via ORM (`db.delete(att)`), not bulk `.delete()`, so the `FileData` blob cascades.
 - **File attachments**: Polymorphic via `entity_type` + `entity_id` on `FileAttachment`; blob stored in `FileData` (`backend/routers/files.py`). For a log entry's attachments use `entity_type='log_entry'` with the LogEntry id.
-- **Schema migration**: the Service/Bill/Maintenance → Provider/LogEntry collapse was a one-shot raw-SQL migration `backend/migrate_to_log.py`. Old tables were renamed `*_legacy` (vendors/services/maintenance_tasks/bills), NOT dropped — drop only on explicit instruction.
+- **Schema migration**: the Service/Bill/Maintenance → Provider/LogEntry collapse was a one-shot raw-SQL migration `backend/migrate_to_log.py`. Old tables were renamed `*_legacy` (vendors/services/maintenance_tasks/bills), NOT dropped — drop only on explicit instruction. Gotcha: SQLite's `RENAME` rewrote FK references, so `quotes.provider_id` (and possibly other tables' FKs) still point at `vendors_legacy(id)`, not `providers`. Harmless while FK enforcement is off, but dropping the legacy tables or enabling `PRAGMA foreign_keys` will break quote writes — rebuild the affected tables first.
 
 ## Database
 
@@ -71,7 +71,7 @@ cp house_dashboard.db house_dashboard_YYYYMMDD.db
 
 Then update the "Last backup" date below. Do not delete old backups.
 
-**Last backup: 2026-10-02**
+**Last backup: 2026-11-16**
 
 ## Python
 
